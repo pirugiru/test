@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>강건너기 - 고1 영단어</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100%;background:#060f1a;overflow:hidden;font-family:system-ui,sans-serif}
+canvas{display:block}
+#hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:10px 14px;pointer-events:none;z-index:10}
+.hb{background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:5px 12px;text-align:center}
+.hl{font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1px}
+.hv{font-size:17px;font-weight:800;color:#fff}
+#qbar{position:fixed;bottom:0;left:0;right:0;background:rgba(6,15,26,0.93);border-top:1px solid rgba(78,205,196,0.25);padding:10px 16px 20px;pointer-events:none;z-index:10}
+.ql{font-size:9px;color:#4ECDC4;letter-spacing:1.5px}
+.qw{font-size:22px;font-weight:800;color:#fff;margin-top:3px}
+#overlay{position:fixed;inset:0;z-index:20;background:rgba(6,15,26,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.ot{font-size:28px;font-weight:800;color:#fff}
+.os{font-size:13px;color:#9ddcff;text-align:center;max-width:280px;line-height:1.7;margin-bottom:10px}
+.mbtn{border:none;border-radius:13px;padding:14px 0;font-size:16px;font-weight:800;cursor:pointer;width:240px}
+#res{position:fixed;inset:0;z-index:20;background:rgba(6,15,26,0.93);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.rt{font-size:24px;font-weight:800;color:#fff}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:260px;margin:12px 0}
+.rb{background:#111e2a;border-radius:10px;padding:13px 8px;text-align:center}
+.rbl{font-size:10px;color:#7a9aaa;margin-bottom:3px}
+.rbv{font-size:21px;font-weight:800}
+.pbtn{background:#4ECDC4;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:800;color:#060f1a;cursor:pointer;width:260px}
+.sbtn{background:none;border:1px solid #1e3a4a;border-radius:12px;padding:12px;font-size:13px;color:#7a9aaa;cursor:pointer;width:260px;margin-top:4px}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div id="hud">
+  <div class="hb"><div class="hl">거리</div><div class="hv" id="hd">0m</div></div>
+  <div class="hb"><div class="hl">정답</div><div class="hv" id="hw">0</div></div>
+  <div class="hb"><div class="hl">최고</div><div class="hv" id="hbest">0m</div></div>
+</div>
+
+<div id="qbar">
+  <div class="ql" id="qmode">이 단어의 뜻은?</div>
+  <div class="qw" id="qword">—</div>
+</div>
+
+<div id="overlay">
+  <div style="font-size:50px">🪨</div>
+  <div class="ot">강건너기</div>
+  <div class="os">A/B/C/D 뗏목이 흘러온다<br>정답 뗏목 위에서 점프!<br><strong style="color:#4ECDC4">스페이스 / 화면 터치</strong></div>
+  <button class="mbtn" style="background:#4ECDC4;color:#060f1a" onclick="startGame(0)">🇬🇧 영어 → 한국어</button>
+  <button class="mbtn" style="background:#A78BFA;color:#fff" onclick="startGame(1)">🇰🇷 한국어 → 영어</button>
+  <button class="mbtn" style="background:#FB923C;color:#fff" onclick="startGame(2)">⚡ 혼합 모드</button>
+</div>
+
+<div id="res">
+  <div style="font-size:50px" id="re">😢</div>
+  <div class="rt" id="rt2">강에 빠졌다!</div>
+  <div class="rg">
+    <div class="rb"><div class="rbl">거리</div><div class="rbv" id="rd" style="color:#4ECDC4">0m</div></div>
+    <div class="rb"><div class="rbl">최고기록</div><div class="rbv" id="rbest" style="color:#FFD93D">0m</div></div>
+    <div class="rb"><div class="rbl">정답</div><div class="rbv" id="rc" style="color:#6BCB77">0</div></div>
+    <div class="rb"><div class="rbl">오답</div><div class="rbv" id="rw" style="color:#FF6B9D">0</div></div>
+  </div>
+  <button class="pbtn" onclick="restartGame()">다시 하기</button>
+  <button class="sbtn" onclick="showMenu()">모드 선택</button>
+</div>
+
+<script>
+const WORDS=[
+  {w:"ability",m:"능력"},{w:"achieve",m:"달성하다"},{w:"ancient",m:"고대의"},
+  {w:"benefit",m:"이익"},{w:"certain",m:"확실한"},{w:"culture",m:"문화"},
+  {w:"develop",m:"발전시키다"},{w:"effort",m:"노력"},{w:"environment",m:"환경"},
+  {w:"express",m:"표현하다"},{w:"focus",m:"집중하다"},{w:"global",m:"세계적인"},
+  {w:"improve",m:"향상시키다"},{w:"increase",m:"증가하다"},{w:"knowledge",m:"지식"},
+  {w:"language",m:"언어"},{w:"memory",m:"기억"},{w:"natural",m:"자연스러운"},
+  {w:"observe",m:"관찰하다"},{w:"opinion",m:"의견"},{w:"practice",m:"연습"},
+  {w:"produce",m:"생산하다"},{w:"protect",m:"보호하다"},{w:"purpose",m:"목적"},
+  {w:"realize",m:"깨닫다"},{w:"reduce",m:"줄이다"},{w:"require",m:"필요로 하다"},
+  {w:"respect",m:"존중하다"},{w:"society",m:"사회"},{w:"solution",m:"해결책"},
+  {w:"suggest",m:"제안하다"},{w:"support",m:"지지하다"},{w:"tradition",m:"전통"},
+  {w:"various",m:"다양한"},{w:"attitude",m:"태도"},{w:"behavior",m:"행동"},
+  {w:"career",m:"직업"},{w:"challenge",m:"도전"},{w:"character",m:"성격"},
+  {w:"communicate",m:"소통하다"},{w:"consider",m:"고려하다"},{w:"create",m:"창조하다"},
+  {w:"decide",m:"결정하다"},{w:"describe",m:"묘사하다"},{w:"economy",m:"경제"},
+  {w:"education",m:"교육"},{w:"freedom",m:"자유"},{w:"generate",m:"생성하다"},
+  {w:"individual",m:"개인"},{w:"influence",m:"영향"},{w:"necessary",m:"필요한"}
+];
+
+const RCOLS=['#4ECDC4','#A78BFA','#FFD93D','#FB923C'];
+const ABCD=['A','B','C','D'];
+
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let W,H;
+
+function resize(){
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener('resize',resize);
+
+// ── State
+let state='menu';
+let gMode=0,bestDist=0;
+let camX,speed,dist,score,wrongs,wFrame,charFrame;
+let tiles=[],genX;
+let pX,pY,pVY,onGround,dead,deadT;
+let curWord,choices,dispMode;
+let flashT=0,flashOk=false;
+let wordChangeCounter=0;
+
+function GY(){ return H*0.60; }
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function pickWord(){
+  const w=WORDS[Math.floor(Math.random()*WORDS.length)];
+  const m=gMode===2?(Math.random()<.5?0:1):gMode;
+  dispMode=m;
+  const dist3=shuffle(WORDS.filter(x=>x.w!==w.w)).slice(0,3);
+  const pool=shuffle([w,...dist3]);
+  curWord=w;
+  choices=pool.map((c,i)=>({key:ABCD[i],text:m===0?c.m:c.w,correct:c.w===w.w,col:RCOLS[i]}));
+  document.getElementById('qmode').textContent=m===0?'이 단어의 뜻은?':'이 뜻의 영단어는?';
+  document.getElementById('qword').textContent=m===0?w.w:w.m;
+  wordChangeCounter=0;
+}
+
+function getDiff(){ return dist<250?0:dist<650?1:2; }
+
+function genTiles(toX){
+  const diff=getDiff();
+  while(genX<toX){
+    const preGap=diff===0?55:diff===1?95+Math.random()*55|0:140+Math.random()*90|0;
+    genX+=preGap;
+    const skipIdx=diff===0?-1:diff===1?(Math.random()<.3?Math.random()*4|0:-1):(Math.random()<.6?Math.random()*4|0:-1);
+    const raftW=74, raftGap=diff===0?14:diff===1?20:30;
+    for(let i=0;i<4;i++){
+      if(i===skipIdx){genX+=raftW+raftGap;continue;}
+      const c=choices[i];
+      tiles.push({x:genX,w:raftW,h:18,key:c.key,text:c.text,correct:c.correct,col:c.col,phase:Math.random()*Math.PI*2,hit:false});
+      genX+=raftW+raftGap;
+    }
+    wordChangeCounter++;
+    if(wordChangeCounter>=(diff===0?5:diff===1?4:3)) pickWord();
+  }
+}
+
+function startGame(m){
+  gMode=m; state='run';
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('res').style.display='none';
+  camX=0; speed=3.8; dist=0; score=0; wrongs=0; wFrame=0; charFrame=0;
+  tiles=[]; genX=220;
+  dead=false; deadT=0; flashT=0; wordChangeCounter=0;
+  // starting ground
+  for(let i=0;i<7;i++) tiles.push({x:i*86,w:80,h:18,solid:true,phase:0});
+  pX=W*0.22; pY=GY()-36; pVY=0; onGround=true;
+  pickWord();
+  genTiles(W*2.5);
+}
+
+function restartGame(){ startGame(gMode); }
+function showMenu(){
+  state='menu';
+  document.getElementById('res').style.display='none';
+  document.getElementById('overlay').style.display='flex';
+}
+
+function jump(){
+  if(state!=='run'||dead) return;
+  if(onGround){ pVY=-16; onGround=false; }
+}
+
+document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();jump();}});
+document.addEventListener('touchstart',e=>{e.preventDefault();if(state==='run')jump();},{passive:false});
+document.addEventListener('mousedown',()=>{if(state==='run')jump();});
+
+function update(){
+  wFrame++; charFrame++;
+  if(flashT>0) flashT--;
+
+  if(dead){
+    deadT++; pVY+=1.1; pY+=pVY;
+    if(deadT>90) showResult();
+    return;
+  }
+
+  camX+=speed;
+  dist=Math.round(camX/10);
+  speed=3.8+dist*0.0038;
+  document.getElementById('hd').textContent=dist+'m';
+  document.getElementById('hw').textContent=score;
+
+  genTiles(camX+W*2.5);
+  tiles=tiles.filter(t=>t.x+t.w>camX-150);
+
+  if(!onGround){ pVY+=0.88; pY+=pVY; }
+  onGround=false;
+
+  const pw=24,ph=36;
+  const pWorldX=pX+camX;
+
+  for(const t of tiles){
+    const ty=t.solid?GY():(GY()+Math.sin(wFrame*0.04+t.phase)*5);
+    if(pVY>=0&&pWorldX+pw*0.4>t.x&&pWorldX-pw*0.4<t.x+t.w&&
+       pY+ph>ty&&pY+ph<ty+t.h+pVY+2){
+      pY=ty-ph; pVY=0; onGround=true;
+      if(!t.solid&&!t.hit){
+        t.hit=true;
+        if(t.correct){score++;flashT=38;flashOk=true;}
+        else{wrongs++;flashT=38;flashOk=false;}
+      }
+      break;
+    }
+  }
+
+  if(pY>H+80) die();
+}
+
+function die(){
+  if(dead) return;
+  dead=true; deadT=0; pVY=-10;
+}
+
+function showResult(){
+  state='over';
+  if(dist>bestDist) bestDist=dist;
+  document.getElementById('res').style.display='flex';
+  document.getElementById('re').textContent=dist>300?'🏆':dist>100?'😅':'😢';
+  document.getElementById('rt2').textContent=dist>300?'훌륭해!':dist>100?'잘했어!':'강에 빠졌다!';
+  document.getElementById('rd').textContent=dist+'m';
+  document.getElementById('rbest').textContent=bestDist+'m';
+  document.getElementById('rc').textContent=score;
+  document.getElementById('rw').textContent=wrongs;
+  document.getElementById('hbest').textContent=bestDist+'m';
+}
+
+// ── DRAW
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const gy=GY();
+
+  // Background
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#07111c'); bg.addColorStop(0.55,'#0d2a3e'); bg.addColorStop(1,'#061828');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // Parallax trees
+  for(let i=0;i<22;i++){
+    const tx=((i*127-camX*0.06)%(W+80)+W+80)%(W+80)-40;
+    const th=16+i%24;
+    ctx.fillStyle='rgba(12,35,18,0.75)';
+    ctx.fillRect(tx,gy-th,15,th);
+    ctx.beginPath(); ctx.arc(tx+7.5,gy-th-12,13,0,Math.PI*2);
+    ctx.fillStyle='rgba(18,50,22,0.7)'; ctx.fill();
+  }
+
+  // Water ripples
+  const t=wFrame*0.02;
+  for(let r=0;r<14;r++){
+    ctx.beginPath();
+    for(let x=0;x<=W;x+=3){
+      const wy=Math.sin(x*0.024+t+r*0.75)*3.5+Math.sin(x*0.012-t*0.6+r)*2;
+      const ry=gy+8+r*(H-gy-8)/13;
+      x===0?ctx.moveTo(x,ry+wy):ctx.lineTo(x,ry+wy);
+    }
+    ctx.strokeStyle=`rgba(50,150,240,${0.05+r*0.007})`; ctx.lineWidth=1.2; ctx.stroke();
+  }
+
+  // TILES
+  for(const ti of tiles){
+    const sx=ti.x-camX;
+    if(sx+ti.w<-10||sx>W+10) continue;
+    const ty=ti.solid?gy:(gy+Math.sin(wFrame*0.04+ti.phase)*5);
+
+    if(ti.solid){
+      ctx.fillStyle='#1e4a24'; ctx.fillRect(sx,ty,ti.w,ti.h);
+      ctx.fillStyle='#2a6030'; ctx.fillRect(sx,ty,ti.w,5);
+      continue;
+    }
+
+    // shadow
+    ctx.save(); ctx.globalAlpha=0.18;
+    ctx.beginPath(); ctx.ellipse(sx+ti.w/2,ty+ti.h*0.8,ti.w*0.44,5,0,0,Math.PI*2);
+    ctx.fillStyle='#000'; ctx.fill(); ctx.restore();
+
+    // body
+    ctx.fillStyle=ti.col;
+    ctx.beginPath(); ctx.roundRect(sx,ty,ti.w,ti.h,5); ctx.fill();
+
+    // plank lines
+    ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1.5;
+    for(let p=1;p<3;p++){
+      ctx.beginPath(); ctx.moveTo(sx+ti.w/3*p,ty+2); ctx.lineTo(sx+ti.w/3*p,ty+ti.h-2); ctx.stroke();
+    }
+    // shine
+    ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillRect(sx+4,ty+2,ti.w-8,3);
+
+    // key badge
+    ctx.fillStyle='rgba(0,0,0,0.55)';
+    ctx.beginPath(); ctx.roundRect(sx+3,ty+2,14,13,3); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 9px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(ti.key,sx+10,ty+8.5);
+
+    // answer text
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.9)'; ctx.shadowBlur=4;
+    ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    const fs=Math.min(11,9.5*(W/390));
+    ctx.font=`bold ${fs}px sans-serif`;
+    const maxTW=ti.w-20;
+    if(ctx.measureText(ti.text).width>maxTW){
+      const h2=Math.ceil(ti.text.length/2);
+      ctx.fillText(ti.text.slice(0,h2),sx+ti.w/2,ty+ti.h/2-fs*0.6);
+      ctx.fillText(ti.text.slice(h2),sx+ti.w/2,ty+ti.h/2+fs*0.6);
+    } else {
+      ctx.fillText(ti.text,sx+ti.w/2,ty+ti.h/2);
+    }
+    ctx.restore();
+  }
+
+  // CHARACTER
+  const sc=Math.max(W,H)/600;
+  const sz=Math.min(36,28*sc);
+  ctx.save();
+  if(dead){
+    ctx.globalAlpha=Math.max(0,1-deadT/55);
+    ctx.translate(pX,pY+sz*0.5);
+    ctx.rotate(Math.min(deadT*0.09,Math.PI/2));
+    ctx.font=`${sz}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('😱',0,0);
+  } else if(!onGround){
+    ctx.font=`${sz*1.12}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('🤸',pX,pY);
+  } else {
+    const bob=Math.sin(charFrame*0.28)*2.5;
+    const tilt=Math.sin(charFrame*0.28)*3;
+    ctx.translate(pX,pY+bob);
+    ctx.rotate(tilt*Math.PI/180);
+    ctx.font=`${sz}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('🏃',0,0);
+  }
+  ctx.restore();
+
+  // Flash feedback
+  if(flashT>0){
+    const a=flashT/38*0.5;
+    ctx.fillStyle=flashOk?`rgba(100,200,100,${a})`:`rgba(220,60,60,${a})`;
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=flashOk?'#afffaa':'#ffaaaa';
+    ctx.font=`bold ${Math.max(24,28*(W/390))}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(flashOk?'✓ 정답!':'✗ 오답',W/2,H*0.38);
+  }
+
+  // Speed strip
+  const spd=Math.min((speed-3.8)/6,1);
+  const mw=100,mh=5,mx=(W-mw)/2,my=H*0.91;
+  ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(mx,my,mw,mh);
+  ctx.fillStyle=spd<0.4?'#6BCB77':spd<0.7?'#FFD93D':'#FF6B9D';
+  ctx.fillRect(mx,my,mw*spd,mh);
+  ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.font='9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('속도',W/2,my+7);
+}
+
+function drawMenu(){
+  ctx.clearRect(0,0,W,H);
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#07111c'); bg.addColorStop(1,'#0d3050');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  const t=wFrame*0.022; wFrame++;
+  for(let r=0;r<8;r++){
+    ctx.beginPath();
+    for(let x=0;x<=W;x+=4){
+      const wy=Math.sin(x*0.024+t+r*0.8)*4;
+      x===0?ctx.moveTo(x,H*0.5+r*(H*0.055)+wy):ctx.lineTo(x,H*0.5+r*(H*0.055)+wy);
+    }
+    ctx.strokeStyle='rgba(50,150,240,0.07)'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+  for(let i=0;i<4;i++){
+    const rx=W*0.1+i*(W*0.22)+Math.sin(t*0.6+i)*8;
+    const ry=H*0.62+Math.sin(t+i*1.4)*6;
+    ctx.fillStyle=RCOLS[i];
+    ctx.beginPath(); ctx.roundRect(rx,ry,64,16,5); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 11px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(ABCD[i],rx+32,ry+8);
+  }
+}
+
+function loop(){
+  if(state==='run'||state==='dead'){ update(); draw(); }
+  else if(state==='menu'||state==='over'){ drawMenu(); }
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+</body>
+</html>
