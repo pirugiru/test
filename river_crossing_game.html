@@ -30,7 +30,41 @@ canvas{display:block}
 </style>
 </head>
 <body>
+<div id="visitor-counter" style="text-align: center; padding: 10px; background-color: #f8f9fa; border-bottom: 1px solid #ddd; font-family: sans-serif;">
+  <span style="margin-right: 20px;">Today: <strong id="today-cnt" style="color: #007bff;">로딩중...</strong></span>
+  <span>Total: <strong id="total-cnt" style="color: #28a745;">로딩중...</strong></span>
+</div>
 
+<script>
+  // ★ 여기에 방금 복사한 2단계의 새 웹앱 URL을 넣으세요!
+  const SCRIPT_URL = 'https://script.google.com/macros/s/본인의_긴_URL/exec';
+
+  // 페이지가 열리면 자동으로 카운터를 불러오는 함수
+  window.addEventListener('DOMContentLoaded', (event) => {
+    // 브라우저가 예전 카운터 값을 기억하지 못하게 현재 시간을 꼬리표로 붙입니다.
+    const urlWithCacheBuster = SCRIPT_URL + "?t=" + new Date().getTime();
+
+    fetch(urlWithCacheBuster)
+      .then(response => response.json())
+      .then(data => {
+        // 에러가 났을 경우 처리
+        if(data.error) {
+          console.error("서버 에러:", data.error);
+          document.getElementById('today-cnt').innerText = "-";
+          document.getElementById('total-cnt').innerText = "-";
+          return;
+        }
+        // 정상적으로 데이터를 받았으면 화면에 숫자를 채워 넣습니다.
+        document.getElementById('today-cnt').innerText = data.today;
+        document.getElementById('total-cnt').innerText = data.total;
+      })
+      .catch(error => {
+        console.error('카운터 호출 실패:', error);
+        document.getElementById('today-cnt').innerText = "오류";
+        document.getElementById('total-cnt').innerText = "오류";
+      });
+  });
+</script>
 <canvas id="c"></canvas>
 
 <div id="hud">
