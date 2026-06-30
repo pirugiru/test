@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>노임단가·주휴·퇴직금 계산 시나리오</title>
+<style>
+  :root{
+    --ink:#17202a;
+    --soft:#526170;
+    --muted:#73808c;
+    --paper:#f7f3ea;
+    --card:#ffffff;
+    --line:#ded6c8;
+    --blue:#255f8c;
+    --blue2:#e4f0fa;
+    --green:#28784c;
+    --green2:#e5f3e9;
+    --amber:#af7119;
+    --amber2:#fff0d6;
+    --red:#bd3f31;
+    --red2:#fde9e5;
+    --purple:#6652a3;
+    --purple2:#ede9fb;
+    --shadow:0 8px 24px rgba(25,35,45,.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.75;
+    font-size:19px;
+    word-break:keep-all;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px;}
+  header{
+    background:linear-gradient(145deg,#16202d 0%,#26384b 62%,#1f6b4b 100%);
+    color:#fff;
+    padding:56px 0 42px;
+  }
+  .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center;}
+  .eyebrow{color:#b9d5ec;font-weight:800;font-size:17px;margin-bottom:12px;letter-spacing:.03em;}
+  h1{font-size:42px;line-height:1.25;margin:0 0 18px;font-weight:900;letter-spacing:-.035em;}
+  .hero p{font-size:20px;color:#dfe8ef;margin:0 0 18px;max-width:720px;}
+  .hero .gold{color:#ffd985;}
+  .heroBox{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:24px;
+    padding:22px;
+    backdrop-filter: blur(4px);
+  }
+  .heroBox .big{font-size:26px;font-weight:900;color:#fff;margin:0 0 8px;}
+  .heroBox .small{font-size:17px;color:#d7e2ea;margin:0;}
+  .nav{
+    position:sticky;top:0;z-index:10;background:rgba(247,243,234,.96);
+    backdrop-filter: blur(7px);border-bottom:1px solid var(--line);
+  }
+  .nav .wrap{display:flex;gap:10px;overflow:auto;padding-top:10px;padding-bottom:10px;}
+  .nav a{
+    white-space:nowrap;text-decoration:none;background:#fff;border:1px solid var(--line);
+    border-radius:999px;padding:9px 15px;font-size:16px;font-weight:800;color:var(--ink);box-shadow:0 2px 7px rgba(0,0,0,.03);
+  }
+  section{padding:44px 0 8px;}
+  .sectionTitle{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+  .badgeNum{width:48px;height:48px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;flex:0 0 auto;}
+  h2{font-size:29px;line-height:1.35;margin:0;font-weight:900;letter-spacing:-.025em;}
+  h3{font-size:22px;line-height:1.4;margin:0 0 10px;font-weight:900;}
+  p{margin:0 0 14px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;box-shadow:var(--shadow);margin-bottom:16px;
+  }
+  .card.softBlue{background:var(--blue2);border-color:#b8cfe2;}
+  .card.softGreen{background:var(--green2);border-color:#b9d9c2;}
+  .card.softAmber{background:var(--amber2);border-color:#e0c589;}
+  .card.softRed{background:var(--red2);border-color:#e9b6ae;}
+  .card.softPurple{background:var(--purple2);border-color:#c9bdeb;}
+  .lead{font-size:23px;font-weight:800;line-height:1.55;color:var(--ink);}
+  .muted{color:var(--soft);}
+  .small{font-size:15px;color:var(--muted);line-height:1.6;}
+  .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 11px;font-size:14px;font-weight:900;margin-bottom:10px;}
+  .pill.blue{background:var(--blue2);color:var(--blue);}
+  .pill.green{background:var(--green2);color:var(--green);}
+  .pill.amber{background:var(--amber2);color:var(--amber);}
+  .pill.red{background:var(--red2);color:var(--red);}
+  .pill.purple{background:var(--purple2);color:var(--purple);}
+  .formula{
+    background:#101820;color:#eef6ff;border-radius:14px;padding:18px 20px;
+    font-size:18px;font-weight:800;line-height:1.8;overflow:auto;margin:14px 0;
+  }
+  .formula .mark{color:#ffd985;}
+  .scenario{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .scenario .card{margin-bottom:0;}
+  .list{list-style:none;padding:0;margin:10px 0 0;}
+  .list li{position:relative;padding-left:30px;margin-bottom:10px;color:var(--soft);line-height:1.55;}
+  .list li:before{content:"✓";position:absolute;left:0;top:-1px;color:var(--green);font-weight:900;}
+  .list.warn li:before{content:"!";color:var(--amber);}
+  .list.no li:before{content:"×";color:var(--red);}
+  .calcShell{
+    display:grid;grid-template-columns:420px 1fr;gap:18px;align-items:start;
+  }
+  .panel{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;}
+  .panelHead{padding:18px 20px;background:#17202a;color:#fff;}
+  .panelHead h3{color:#fff;margin:0;font-size:22px;}
+  .panelHead p{margin:5px 0 0;color:#c9d4de;font-size:15px;line-height:1.5;}
+  .panelBody{padding:20px;}
+  .modeTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:15px;}
+  .tabBtn{
+    border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:12px 10px;
+    font-weight:900;font-size:16px;cursor:pointer;
+  }
+  .tabBtn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  label{display:block;font-weight:900;font-size:16px;margin:15px 0 7px;color:var(--ink);}
+  .help{font-size:13.5px;color:var(--muted);margin-top:5px;line-height:1.45;}
+  input, select{
+    width:100%;border:2px solid #d8d0c2;border-radius:12px;padding:13px 14px;
+    font-size:20px;font-weight:800;color:var(--ink);background:#fff;outline:none;
+  }
+  input:focus, select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,95,140,.12);}
+  .inline{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .checkboxRow{display:flex;gap:9px;align-items:flex-start;margin:14px 0 0;}
+  .checkboxRow input{width:20px;height:20px;margin-top:5px;flex:0 0 auto;}
+  .checkboxRow span{font-size:16px;font-weight:800;color:var(--ink);}
+  .checkboxRow em{display:block;font-style:normal;font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.4;}
+  .resultTop{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-bottom:16px;}
+  .resultBig{
+    background:linear-gradient(145deg,#e4f1e8,#fff);border:2px solid #b9d9c2;border-radius:20px;padding:24px;
+  }
+  .resultBig .k{font-size:16px;color:var(--green);font-weight:900;margin-bottom:6px;}
+  .resultBig .v{font-size:40px;line-height:1.1;font-weight:900;letter-spacing:-.035em;color:var(--green);}
+  .resultBig .s{font-size:15px;color:var(--soft);margin-top:8px;line-height:1.5;}
+  .resultSub{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;}
+  .resultSub .row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding:8px 0;font-size:16px;}
+  .resultSub .row:last-child{border-bottom:0;}
+  .resultSub b{font-weight:900;}
+  .barBox{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:16px;}
+  .stack{height:58px;display:flex;border-radius:14px;overflow:hidden;border:1px solid #cfc6b8;background:#f2eee7;}
+  .seg{display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-size:13px;font-weight:900;line-height:1.15;min-width:0;white-space:normal;padding:0 3px;}
+  .segBasic{background:#2d6fa2;}
+  .segWeekly{background:#28784c;}
+  .segAnnual{background:#8f63b8;}
+  .segRetire{background:#af7119;}
+  .segIns{background:#626e79;}
+  .segMargin{background:#bd3f31;}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--soft);}
+  .legend span{display:inline-flex;gap:5px;align-items:center;}
+  .legend i{width:13px;height:13px;border-radius:3px;display:inline-block;}
+  .decision{border-radius:18px;padding:20px;border:2px solid;background:#fff;margin-bottom:16px;}
+  .decision.good{border-color:var(--green);background:var(--green2);}
+  .decision.warn{border-color:var(--amber);background:var(--amber2);}
+  .decision.bad{border-color:var(--red);background:var(--red2);}
+  .decision h3{font-size:22px;margin-bottom:6px;}
+  .decision p{font-size:17px;margin:0;color:var(--soft);}
+  .printBtn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;
+    padding:13px 16px;background:var(--ink);color:#fff;font-size:17px;font-weight:900;cursor:pointer;text-decoration:none;
+  }
+  .tableWrap{overflow:auto;border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--line);background:#fff;margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;min-width:680px;background:#fff;}
+  th,td{border-bottom:1px solid var(--line);padding:14px 15px;text-align:left;font-size:16px;vertical-align:top;}
+  th{background:#17202a;color:#fff;font-weight:900;}
+  tr:last-child td{border-bottom:0;}
+  td strong{color:var(--ink);}
+  .scriptBox{
+    background:#fff;border:1px solid var(--line);border-left:7px solid var(--blue);
+    border-radius:16px;padding:20px;box-shadow:var(--shadow);font-size:18px;color:var(--soft);line-height:1.75;
+  }
+  .scriptBox b{color:var(--ink);}
+  .footer{padding:30px 0 46px;color:var(--muted);font-size:14px;line-height:1.7;}
+  .sourceLinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .sourceLinks a{font-size:13px;background:#fff;border:1px solid var(--line);border-radius:999px;text-decoration:none;padding:6px 10px;color:var(--soft);}
+  .mobileOnly{display:none;}
+  @media(max-width:900px){
+    .hero{grid-template-columns:1fr;}
+    h1{font-size:34px;}
+    .grid,.grid2,.scenario,.calcShell,.resultTop{grid-template-columns:1fr;}
+    .calcShell{gap:14px;}
+    .panel{border-radius:18px;}
+  }
+  @media(max-width:560px){
+    body{font-size:17px;line-height:1.7;}
+    .wrap{padding:0 16px;}
+    header{padding:40px 0 30px;}
+    h1{font-size:29px;}
+    h2{font-size:24px;}
+    h3{font-size:20px;}
+    .lead{font-size:20px;}
+    .hero p{font-size:18px;}
+    .sectionTitle{align-items:flex-start;}
+    .badgeNum{width:42px;height:42px;font-size:20px;}
+    .card{padding:20px;border-radius:16px;}
+    .inline{grid-template-columns:1fr;}
+    .resultBig .v{font-size:34px;}
+    .stack{height:auto;min-height:56px;flex-direction:column;}
+    .seg{min-height:34px;width:100%!important;}
+    .mobileOnly{display:block;}
+    .nav a{font-size:14px;padding:8px 12px;}
+  }
+  @media print{
+    .nav,.printBtn{display:none!important;}
+    body{background:#fff;font-size:16px;}
+    header{background:#17202a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .card,.panel,.barBox,.decision,.tableWrap,.scriptBox{box-shadow:none;}
+    section{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hero">
+    <div>
+      <div class="eyebrow">하베림 · 앞으로의 인건비 운영 정리</div>
+      <h1>노임단가 안에서<br><span class="gold">주휴·연차·퇴직금·마진</span>까지<br>다시 계산하기</h1>
+      <p>발주처가 정한 하루 단가를 그대로 일당으로 주면, 회사에 법정수당과 마진을 낼 돈이 남지 않습니다. 그래서 앞으로는 “기본일당”과 “법정비용”을 나누어 계산해야 합니다.</p>
+      <button class="printBtn" onclick="window.print()">인쇄 / PDF 저장</button>
+    </div>
+    <div class="heroBox">
+      <p class="big">핵심 한 줄</p>
+      <p class="small">발주처 노임단가 = 근로자 일당이 아닙니다.<br><b>발주처 노임단가 = 기본일당 + 주휴 + 연차 + 퇴직충당 + 보험료 + 회사 마진</b>으로 봐야 합니다.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="#summary">핵심 정리</a>
+    <a href="#fixed">단가 고정 플랜</a>
+    <a href="#changeable">단가 조정 플랜</a>
+    <a href="#calculator">계산기</a>
+    <a href="#talk">발주처 설명문</a>
+    <a href="#checklist">체크리스트</a>
+  </div>
+</nav>
+
+<section id="summary">
+  <div class="wrap">
+    <div class="sectionTitle"><div class="badgeNum">1</div><h2>먼저 이렇게 이해하면 됩니다</h2></div>
+    <div class="grid">
+      <div class="card softRed">
+        <span class="pill red">위험한 방식</span>
+        <h3>단가를 전부 일당으로 지급</h3>
+        <p class="muted">발주처가 18만원을 주면 근로자에게 18만원을 그대로 지급하는 방식입니다. 이러면 주휴·연차·퇴직금·보험료·마진을 낼 돈이 남지 않습니다.</p>
+      </div>
+      <div class="card softGreen">
+        <span class="pill green">앞으로 방식</span>
+        <h3>기본일당을 역산</h3>
+        <p class="muted">발주처 단가 안에서 기본일당을 먼저 낮춰 잡고, 주휴수당·연차수당·퇴직충당금을 별도 계산합니다.</p>
+      </div>
+      <div class="card softBlue">
+        <span class="pill blue">사업 판단</span>
+        <h3>안 맞으면 계약을 줄이거나 포기</h3>
+        <p class="muted">법정비용까지 반영했을 때 사람이 안 구해지면, 그 계약은 단가가 낮은 적자 구조일 수 있습니다.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="lead">앞으로의 선택지는 크게 두 가지입니다.</p>
+      <div class="formula">
+        <div>① 발주처 단가가 <span class="mark">안 바뀐다</span> → 단가 안에서 기본일당을 낮춰 역산</div>
+        <div>② 발주처 단가를 <span class="mark">바꿀 수 있다</span> → 법정수당 포함 총노무비 단가로 재산정</div>
+      </div>
+      <p class="small">이 자료는 의사결정용 계산 도구입니다. 실제 급여, 4대보험, 세금, 퇴직금 산정은 노무사·세무사 검토가 필요합니다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="fixed">
+  <div class="wrap">
+    <div class="sectionTitle"><div class="badgeNum">2</div><h2>시나리오 A: 발주처 노임단가가 안 바뀔 때</h2></div>
+    <div class="card softAmber">
+      <p class="lead">이 경우 핵심은 “그 단가 안에서 나눠 써야 한다”입니다.</p>
+      <p class="muted">발주처가 하루 단가를 더 못 준다면, 회사는 그 단가 안에서 기본일당·주휴·연차·퇴직충당·보험료·마진을 모두 배치해야 합니다.</p>
+    </div>
+
+    <div class="scenario">
+      <div class="card softGreen">
+        <span class="pill green">추천 1순위</span>
+        <h3>A-1. 핵심 1~2명 기간제 + 나머지 진짜 일용직</h3>
+        <ul class="list">
+          <li>숙련자가 꼭 필요한 자리는 기간제 일당제로 계약</li>
+          <li>나머지는 작업량이 많을 때만 하루 단위 호출</li>
+          <li>전체 인건비 부담을 줄이면서 현장 품질 유지</li>
+        </ul>
+      </div>
+      <div class="card softBlue">
+        <span class="pill blue">계산 필요</span>
+        <h3>A-2. 전원 기간제 일당제</h3>
+        <ul class="list">
+          <li>근로계약서, 출근부, 급여명세서가 가장 깔끔함</li>
+          <li>대신 기본일당을 많이 낮춰야 할 수 있음</li>
+          <li>낮춘 일당으로 사람이 구해지는지 확인 필요</li>
+        </ul>
+      </div>
+      <div class="card softPurple">
+        <span class="pill purple">보조 인력용</span>
+        <h3>A-3. 진짜 일용직 중심 운영</h3>
+        <ul class="list warn">
+          <li>하루 단위 계약, 그날 작업 종료</li>
+          <li>같은 사람을 매년 길게 반복 사용하면 다시 위험</li>
+          <li>숙련자가 필요한 현장에는 한계가 있음</li>
+        </ul>
+      </div>
+      <div class="card softRed">
+        <span class="pill red">마지막 선택</span>
+        <h3>A-4. 단가가 안 맞으면 계약 축소·포기</h3>
+        <ul class="list no">
+          <li>법정비용을 넣으면 사람이 안 구해지는 경우</li>
+          <li>기존 일당을 유지하면 회사가 계속 손해 보는 경우</li>
+          <li>이때는 노무 문제가 아니라 적자 계약 문제</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="changeable">
+  <div class="wrap">
+    <div class="sectionTitle"><div class="badgeNum">3</div><h2>시나리오 B: 발주처 단가를 바꿀 수 있을 때</h2></div>
+    <div class="card softGreen">
+      <p class="lead">가장 좋은 방법은 “노임단가”를 “총노무비 단가”로 바꾸는 것입니다.</p>
+      <p class="muted">단순히 일당을 올려달라는 말이 아니라, 기본노임 외에 주휴·연차·퇴직충당·보험료·관리비·이윤을 별도 항목으로 인정해 달라는 뜻입니다.</p>
+    </div>
+
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>항목</th><th>발주처에 요구할 내용</th><th>이유</th></tr></thead>
+        <tbody>
+          <tr><td><strong>기본노임</strong></td><td>근로자에게 실제 지급할 기본일당</td><td>시장 단가에 맞춰 사람이 구해져야 함</td></tr>
+          <tr><td><strong>주휴수당</strong></td><td>발생 요건 충족 시 지급할 유급휴일 비용</td><td>기간제·반복 근무 인력은 주휴 문제가 생김</td></tr>
+          <tr><td><strong>연차수당</strong></td><td>1개월 개근 시 발생하는 연차 비용</td><td>1년 미만 근로자도 월 개근 시 연차 발생</td></tr>
+          <tr><td><strong>퇴직급여충당</strong></td><td>반복 사용 또는 계속근로 인정 가능성 반영</td><td>같은 사람을 계속 쓰면 퇴직금 리스크 존재</td></tr>
+          <tr><td><strong>4대보험·산재</strong></td><td>사업주 부담분 별도 반영</td><td>근로자에게 준 일당 외에 회사가 부담하는 비용</td></tr>
+          <tr><td><strong>관리비·이윤</strong></td><td>급여관리, 노무관리, 회사 마진</td><td>기업이윤 하나로 법정비용까지 떠안는 구조는 위험</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="card softBlue">
+        <span class="pill blue">정상안</span>
+        <h3>B-1. 총노무비 단가표 재산정</h3>
+        <p class="muted">기본일당을 먼저 정하고, 주휴·연차·퇴직충당·보험료·마진을 더해 발주처 단가를 새로 계산합니다.</p>
+      </div>
+      <div class="card softAmber">
+        <span class="pill amber">절충안</span>
+        <h3>B-2. 기존 단가 + 법정수당 보전항목</h3>
+        <p class="muted">기존 노임표를 유지하되, 법정수당·보험료·퇴직충당을 별도 라인으로 추가합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="calculator">
+  <div class="wrap">
+    <div class="sectionTitle"><div class="badgeNum">4</div><h2>인건비 계산기</h2></div>
+    <div class="card">
+      <p class="lead">숫자를 바꾸면 자동 계산됩니다.</p>
+      <p class="muted">왼쪽에 발주처 단가, 회사 마진율, 보험료율, 근무일수를 넣으면 오른쪽에 “줄 수 있는 기본일당”과 비용 구성이 나옵니다.</p>
+    </div>
+
+    <div class="calcShell">
+      <div class="panel">
+        <div class="panelHead">
+          <h3>입력값</h3>
+          <p>기본값은 예시입니다. 실제 단가에 맞게 바꿔 보세요.</p>
+        </div>
+        <div class="panelBody">
+          <div class="modeTabs">
+            <button class="tabBtn active" id="modeFixed" type="button">단가 안에서 역산</button>
+            <button class="tabBtn" id="modeNeed" type="button">필요 단가 계산</button>
+          </div>
+
+          <div id="fixedInputs">
+            <label for="sourceRate">발주처 1인 1일 단가</label>
+            <input id="sourceRate" type="text" inputmode="numeric" value="180,000" />
+            <div class="help">예: 발주처가 좋은공 1명 하루 투입에 인정하는 금액</div>
+          </div>
+
+          <div id="needInputs" style="display:none;">
+            <label for="targetDay">근로자에게 주고 싶은 기본일당</label>
+            <input id="targetDay" type="text" inputmode="numeric" value="150,000" />
+            <div class="help">주휴·연차·퇴직금 포함 전, 계약서에 적을 기본일당</div>
+          </div>
+
+          <div class="inline">
+            <div>
+              <label for="marginRate">회사 마진율</label>
+              <input id="marginRate" type="number" value="5" min="0" max="50" step="0.5" />
+              <div class="help">매출액 대비 남기고 싶은 비율</div>
+            </div>
+            <div>
+              <label for="insuranceRate">보험·기타 부담률</label>
+              <input id="insuranceRate" type="number" value="10" min="0" max="30" step="0.5" />
+              <div class="help">4대보험 사업주 부담, 산재 등 예시값</div>
+            </div>
+          </div>
+
+          <div class="inline">
+            <div>
+              <label for="weekDays">주당 근무일수</label>
+              <input id="weekDays" type="number" value="5" min="1" max="6" step="1" />
+              <div class="help">주휴 대상일 때 5일이면 1일분÷5일 = 20%</div>
+            </div>
+            <div>
+              <label for="monthDays">월 평균 근무일수</label>
+              <input id="monthDays" type="number" value="18" min="1" max="31" step="1" />
+              <div class="help">장마·우천으로 변동 가능</div>
+            </div>
+          </div>
+
+          <div class="inline">
+            <div>
+              <label for="seasonMonths">계약 개월수</label>
+              <input id="seasonMonths" type="number" value="9" min="1" max="12" step="0.5" />
+            </div>
+            <div>
+              <label for="annualDays">연차 예상일수</label>
+              <input id="annualDays" type="number" value="8" min="0" max="15" step="1" />
+              <div class="help">9개월이면 대략 8~9일을 보수적으로 검토</div>
+            </div>
+          </div>
+
+          <div class="checkboxRow">
+            <input id="includeWeekly" type="checkbox" checked />
+            <div><span>주휴수당 반영</span><em>기간제·반복 근무 인력은 보수적으로 반영</em></div>
+          </div>
+          <div class="checkboxRow">
+            <input id="includeAnnual" type="checkbox" checked />
+            <div><span>연차수당 반영</span><em>1개월 개근 시 1일 발생 가능</em></div>
+          </div>
+          <div class="checkboxRow">
+            <input id="includeRetire" type="checkbox" checked />
+            <div><span>퇴직충당 반영</span><em>같은 사람을 반복 사용할 가능성이 있으면 켜두기</em></div>
+          </div>
+          <label for="retireRate">퇴직충당 비율</label>
+          <input id="retireRate" type="number" value="8.3" min="0" max="15" step="0.1" />
+          <div class="help">퇴직금은 일당에 포함 지급이 아니라, 회사가 내부적으로 따로 충당해야 안전합니다.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="resultTop">
+          <div class="resultBig">
+            <div class="k" id="mainLabel">단가 안에서 가능한 기본일당</div>
+            <div class="v" id="mainValue">0원</div>
+            <div class="s" id="mainSub">발주처 단가에서 마진과 법정비용을 뺀 뒤 역산한 금액입니다.</div>
+          </div>
+          <div class="resultSub">
+            <div class="row"><span>발주처 단가</span><b id="outRevenue">0원</b></div>
+            <div class="row"><span>총 인건비 원가</span><b id="outCost">0원</b></div>
+            <div class="row"><span>회사 마진</span><b id="outMargin">0원</b></div>
+            <div class="row"><span>실제 마진율</span><b id="outMarginPct">0%</b></div>
+          </div>
+        </div>
+
+        <div class="barBox">
+          <h3>하루 단가가 이렇게 나뉩니다</h3>
+          <div class="stack" id="stackBar">
+            <div class="seg segBasic" id="barBasic">기본</div>
+            <div class="seg segWeekly" id="barWeekly">주휴</div>
+            <div class="seg segAnnual" id="barAnnual">연차</div>
+            <div class="seg segRetire" id="barRetire">퇴직</div>
+            <div class="seg segIns" id="barIns">보험</div>
+            <div class="seg segMargin" id="barMargin">마진</div>
+          </div>
+          <div class="legend">
+            <span><i style="background:#2d6fa2"></i>기본일당</span>
+            <span><i style="background:#28784c"></i>주휴</span>
+            <span><i style="background:#8f63b8"></i>연차</span>
+            <span><i style="background:#af7119"></i>퇴직충당</span>
+            <span><i style="background:#626e79"></i>보험·기타</span>
+            <span><i style="background:#bd3f31"></i>회사 마진</span>
+          </div>
+        </div>
+
+        <div class="resultSub" style="margin-bottom:16px;">
+          <div class="row"><span>기본일당</span><b id="outBasic">0원</b></div>
+          <div class="row"><span>주휴 재원</span><b id="outWeekly">0원</b></div>
+          <div class="row"><span>연차 재원</span><b id="outAnnual">0원</b></div>
+          <div class="row"><span>퇴직충당</span><b id="outRetire">0원</b></div>
+          <div class="row"><span>보험·기타 사업주 부담</span><b id="outInsurance">0원</b></div>
+        </div>
+
+        <div class="decision" id="decisionBox">
+          <h3 id="decisionTitle">판단</h3>
+          <p id="decisionText">숫자를 입력하면 판단이 표시됩니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="talk">
+  <div class="wrap">
+    <div class="sectionTitle"><div class="badgeNum">5</div><h2>발주처에 설명할 때 쓸 말</h2></div>
+    <div class="scriptBox">
+      <p><b>기존에는 발주처 노임단가를 작업자에게 거의 그대로 지급하는 구조였습니다.</b></p>
+      <p>그런데 반복 투입되는 인력을 기간제 또는 상용 일당제로 운영하면, 기본노임 외에 주휴수당, 연차수당, 퇴직급여충당금, 4대보험 사업주 부담분, 산재보험료가 추가로 발생합니다.</p>
+      <p>따라서 기존 노임단가를 그대로 유지하면 회사가 법정 인건비를 감당할 수 없습니다. 향후 계약은 단순 노임단가가 아니라 <b>기본노임 + 법정수당 + 보험료 + 관리비 + 기업이윤</b>을 구분한 총노무비 단가로 다시 산정해야 합니다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="checklist">
+  <div class="wrap">
+    <div class="sectionTitle"><div class="badgeNum">6</div><h2>최종 체크리스트</h2></div>
+    <div class="grid2">
+      <div class="card softGreen">
+        <span class="pill green">해야 할 것</span>
+        <ul class="list">
+          <li>발주처 단가를 기본일당으로 바로 보지 않기</li>
+          <li>기본일당, 주휴, 연차, 퇴직충당, 보험료를 구분하기</li>
+          <li>핵심 숙련자와 보조 일용직을 나누어 운영하기</li>
+          <li>급여명세서에 항목을 분리해서 표시하기</li>
+          <li>발주처와 단가 재산정 또는 보전항목을 문서로 남기기</li>
+        </ul>
+      </div>
+      <div class="card softRed">
+        <span class="pill red">피해야 할 것</span>
+        <ul class="list no">
+          <li>“일당에 퇴직금 포함”이라고 처리하기</li>
+          <li>발주처 노임단가를 100% 그대로 일당으로 주기</li>
+          <li>같은 사람을 매년 길게 쓰면서 일용직이라고만 부르기</li>
+          <li>법정수당 계산 없이 기업이윤으로 알아서 메우기</li>
+          <li>구두 약속으로 추가 일감 보전을 받기</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="lead">사장님 판단 기준</p>
+      <div class="formula">
+        <div>계산한 기본일당으로 <span class="mark">사람이 구해진다</span> → 계속 검토 가능</div>
+        <div>계산한 기본일당으로 <span class="mark">사람이 안 구해진다</span> → 발주처 단가가 낮은 것</div>
+        <div>발주처가 단가를 <span class="mark">안 바꿔준다</span> → 계약 축소·포기까지 검토</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>이 자료는 의사결정과 설명을 돕기 위한 계산 도구입니다. 실제 임금 산정, 4대보험, 퇴직금, 세금, 계약서 작성은 노무사·세무사·변호사 검토를 거쳐 확정해야 합니다.</p>
+    <div class="sourceLinks">
+      <a href="https://www.law.go.kr/lsLinkCommonInfo.do?ancYnChk=&chrClsCd=010202&lsJoLnkSeq=1015677471" target="_blank" rel="noopener">근로기준법 제55조</a>
+      <a href="https://www.law.go.kr/LSW/lsLinkProc.do?efYd=20101210&joNo=006000&lnkJoNo=undefined&lsClsCd=L&lsId=prec20101210&lsNm=%EA%B7%BC%EB%A1%9C%EA%B8%B0%EC%A4%80%EB%B2%95&mode=11" target="_blank" rel="noopener">근로기준법 제60조</a>
+      <a href="https://www.law.go.kr/LSW/lsInfoP.do?ancYnChk=0&lsId=009883" target="_blank" rel="noopener">근로자퇴직급여 보장법</a>
+      <a href="https://www.law.go.kr/admRulLsInfoP.do?admRulSeq=2100000258346" target="_blank" rel="noopener">예정가격작성기준</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let mode = 'fixed';
+
+  function parseMoney(v){
+    if(typeof v !== 'string') v = String(v ?? '');
+    const n = Number(v.replace(/[^0-9.-]/g,''));
+    return Number.isFinite(n) ? n : 0;
+  }
+  function fmt(n){
+    if(!Number.isFinite(n)) n = 0;
+    return Math.round(n).toLocaleString('ko-KR') + '원';
+  }
+  function pct(n){
+    if(!Number.isFinite(n)) n = 0;
+    return (Math.round(n*10)/10).toLocaleString('ko-KR') + '%';
+  }
+  function setMoneyFormat(el){
+    const n = parseMoney(el.value);
+    el.value = n ? Math.round(n).toLocaleString('ko-KR') : '';
+  }
+  function val(id){ return parseFloat($(id).value) || 0; }
+
+  function calcFactors(){
+    const weekDays = Math.max(1, val('weekDays'));
+    const monthDays = Math.max(1, val('monthDays'));
+    const months = Math.max(1, val('seasonMonths'));
+    const totalDays = Math.max(1, monthDays * months);
+    const weeklyRate = $('includeWeekly').checked ? (1 / weekDays) : 0;
+    const annualRate = $('includeAnnual').checked ? (val('annualDays') / totalDays) : 0;
+    const retireRate = $('includeRetire').checked ? (val('retireRate') / 100) : 0;
+    const insuranceRate = val('insuranceRate') / 100;
+    const marginRate = val('marginRate') / 100;
+    const wageFactor = 1 + weeklyRate + annualRate + retireRate;
+    const costFactor = wageFactor * (1 + insuranceRate);
+    return {weekDays, monthDays, months, totalDays, weeklyRate, annualRate, retireRate, insuranceRate, marginRate, wageFactor, costFactor};
+  }
+
+  function renderBar(parts, revenue){
+    const keys = [
+      ['barBasic', parts.basic, '기본'],
+      ['barWeekly', parts.weekly, '주휴'],
+      ['barAnnual', parts.annual, '연차'],
+      ['barRetire', parts.retire, '퇴직'],
+      ['barIns', parts.insurance, '보험'],
+      ['barMargin', parts.margin, '마진']
+    ];
+    keys.forEach(([id, amount, label]) => {
+      const el = $(id);
+      let w = revenue > 0 ? (amount / revenue * 100) : 0;
+      w = Math.max(0, Math.min(100, w));
+      el.style.width = w + '%';
+      el.textContent = label + '\n' + Math.round(w) + '%';
+      el.style.display = w < 1 ? 'none' : 'flex';
+    });
+  }
+
+  function updateDecision(basic, revenue, margin, f){
+    const box = $('decisionBox');
+    const title = $('decisionTitle');
+    const text = $('decisionText');
+    box.classList.remove('good','warn','bad');
+    const minDay = 10320 * 8; // 2026 hourly minimum wage simple 8h daily conversion
+    if(mode === 'fixed'){
+      if(basic < minDay){
+        box.classList.add('bad');
+        title.textContent = '위험: 기본일당이 최저임금 수준보다 낮습니다';
+        text.textContent = '이 단가 안에서 주휴·연차·퇴직충당·보험료·마진을 모두 넣으면 현실적으로 운영이 어렵습니다. 발주처 단가 재협상 또는 계약 포기를 검토해야 합니다.';
+      }else if(basic < revenue * 0.7){
+        box.classList.add('warn');
+        title.textContent = '주의: 근로자 체감 일당이 크게 낮아질 수 있습니다';
+        text.textContent = '법정비용과 마진을 반영하면 기본일당이 많이 낮아집니다. 이 금액으로 사람이 구해지는지 먼저 확인해야 합니다.';
+      }else{
+        box.classList.add('good');
+        title.textContent = '검토 가능: 단가 안에서 구조화할 여지가 있습니다';
+        text.textContent = '기본일당, 주휴, 연차, 퇴직충당, 보험료, 마진을 구분하면 앞으로의 분쟁 위험을 줄일 수 있습니다.';
+      }
+    } else {
+      box.classList.add('good');
+      title.textContent = '발주처 제안 단가로 사용할 수 있습니다';
+      text.textContent = '이 금액은 원하는 기본일당을 지급하면서 법정비용과 회사 마진까지 반영한 1인 1일 필요 단가입니다.';
+    }
+  }
+
+  function calculate(){
+    const f = calcFactors();
+    let revenue, basic;
+    if(mode === 'fixed'){
+      revenue = parseMoney($('sourceRate').value);
+      const available = revenue * (1 - f.marginRate);
+      basic = f.costFactor > 0 ? available / f.costFactor : 0;
+      $('mainLabel').textContent = '단가 안에서 가능한 기본일당';
+      $('mainSub').textContent = '발주처 단가에서 회사 마진과 법정비용을 뺀 뒤 역산한 금액입니다.';
+    }else{
+      basic = parseMoney($('targetDay').value);
+      const costBeforeMargin = basic * f.costFactor;
+      revenue = (1 - f.marginRate) > 0 ? costBeforeMargin / (1 - f.marginRate) : 0;
+      $('mainLabel').textContent = '필요한 발주처 1인 1일 단가';
+      $('mainSub').textContent = '원하는 기본일당을 주면서 법정비용과 회사 마진까지 반영한 필요 단가입니다.';
+    }
+
+    const weekly = basic * f.weeklyRate;
+    const annual = basic * f.annualRate;
+    const retire = basic * f.retireRate;
+    const wageCost = basic + weekly + annual + retire;
+    const insurance = wageCost * f.insuranceRate;
+    const totalCost = wageCost + insurance;
+    const margin = revenue - totalCost;
+    const marginPct = revenue > 0 ? margin / revenue * 100 : 0;
+
+    $('mainValue').textContent = fmt(mode === 'fixed' ? basic : revenue);
+    $('outRevenue').textContent = fmt(revenue);
+    $('outCost').textContent = fmt(totalCost);
+    $('outMargin').textContent = fmt(margin);
+    $('outMarginPct').textContent = pct(marginPct);
+    $('outBasic').textContent = fmt(basic);
+    $('outWeekly').textContent = fmt(weekly);
+    $('outAnnual').textContent = fmt(annual);
+    $('outRetire').textContent = fmt(retire);
+    $('outInsurance').textContent = fmt(insurance);
+
+    renderBar({basic, weekly, annual, retire, insurance, margin}, revenue);
+    updateDecision(basic, revenue, margin, f);
+  }
+
+  function setMode(next){
+    mode = next;
+    $('modeFixed').classList.toggle('active', mode === 'fixed');
+    $('modeNeed').classList.toggle('active', mode === 'need');
+    $('fixedInputs').style.display = mode === 'fixed' ? 'block' : 'none';
+    $('needInputs').style.display = mode === 'need' ? 'block' : 'none';
+    calculate();
+  }
+
+  ['sourceRate','targetDay'].forEach(id => {
+    const el = $(id);
+    el.addEventListener('blur', () => { setMoneyFormat(el); calculate(); });
+    el.addEventListener('input', calculate);
+  });
+  ['marginRate','insuranceRate','weekDays','monthDays','seasonMonths','annualDays','retireRate','includeWeekly','includeAnnual','includeRetire'].forEach(id => {
+    $(id).addEventListener('input', calculate);
+    $(id).addEventListener('change', calculate);
+  });
+  $('modeFixed').addEventListener('click', () => setMode('fixed'));
+  $('modeNeed').addEventListener('click', () => setMode('need'));
+
+  calculate();
+</script>
+</body>
+</html>
