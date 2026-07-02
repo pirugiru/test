@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI 과외 사용법 — 정보 교과</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;700;800;900&family=Noto+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEEE6;
+    --paper-card:#FBFAF5;
+    --ink:#20213A;
+    --ink-soft:#54566E;
+    --mustard:#E9A23B;
+    --good:#3F7D5C;
+    --good-bg:#E3EEE6;
+    --bad:#8B8878;
+    --bad-bg:#E8E5DC;
+    --cta:#4B4E9E;
+    --line:#D9D6C8;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif; font-size:16.5px; line-height:1.65;
+    scroll-behavior:smooth;
+  }
+  @media (prefers-reduced-motion: reduce){ body{scroll-behavior:auto;} *{animation:none !important; transition:none !important;} }
+  h1,h2,h3,.display{ font-family:'Gothic A1', sans-serif; font-weight:900; letter-spacing:-0.02em; margin:0; }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  .storybar{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; gap:4px; padding:10px 12px 8px; background:linear-gradient(to bottom, var(--paper) 75%, transparent); }
+  .storybar .seg{ flex:1; height:4px; border-radius:2px; background:rgba(32,33,58,0.15); overflow:hidden; }
+  .storybar .seg i{ display:block; height:100%; width:0%; background:var(--ink); }
+  .storybar .seg.done i{width:100%;}
+
+  .partnav{ position:fixed; top:26px; left:0; right:0; z-index:49; display:flex; gap:8px; overflow-x:auto; padding:6px 12px 10px; scrollbar-width:none; }
+  .partnav::-webkit-scrollbar{display:none;}
+  .partnav a{ flex:0 0 auto; font-family:'Gothic A1', sans-serif; font-weight:700; font-size:13.5px; color:var(--ink-soft); background:rgba(255,255,255,0.6); border:1px solid var(--line); padding:7px 13px; border-radius:999px; text-decoration:none; }
+  .partnav a.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  .deck{ scroll-snap-type:y mandatory; overflow-y:auto; height:100svh; }
+  .card{ scroll-snap-align:start; min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:100px 20px 56px; max-width:560px; margin:0 auto; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:13.5px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px; }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--mustard);}
+  .card h2{font-size:30px; line-height:1.28; margin-bottom:16px;}
+  .card p.lead{font-size:17.5px; line-height:1.6; color:var(--ink-soft); margin:0 0 20px;}
+
+  .thread{display:flex; flex-direction:column; gap:12px; margin:8px 0 20px;}
+  .bubble{ max-width:88%; padding:13px 16px; border-radius:16px; font-size:17px; line-height:1.55; }
+  .bubble.me{ align-self:flex-end; background:var(--cta); color:#fff; border-bottom-right-radius:4px; }
+  .bubble.ai{ align-self:flex-start; background:var(--paper-card); color:var(--ink); border:1px solid var(--line); border-bottom-left-radius:4px; }
+  .bubble.bad{ background:var(--bad-bg); border:1px solid var(--bad); color:var(--ink);}
+  .bubble.good{ background:var(--good-bg); border:1px solid var(--good); color:var(--ink);}
+  .tag{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:600; padding:3px 9px; border-radius:999px; margin-bottom:7px; }
+  .tag.bad{background:var(--bad); color:#fff;}
+  .tag.good{background:var(--good); color:#fff;}
+
+  .promptbox{ background:var(--paper-card); border:1px solid var(--line); border-left:4px solid var(--mustard); border-radius:12px; padding:15px 17px; margin:10px 0; font-family:'IBM Plex Mono', monospace; font-size:16px; line-height:1.65; white-space:pre-wrap; }
+  .promptbox .ph{color:var(--cta); font-weight:600;}
+
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .btn{ font-family:'Gothic A1', sans-serif; font-weight:700; font-size:15px; border:none; border-radius:10px; padding:11px 16px; cursor:pointer; }
+  .btn.chatgpt{background:var(--ink); color:#fff;}
+  .btn.claude{background:var(--cta); color:#fff;}
+  .btn.copy{background:transparent; color:var(--ink-soft); border:1px solid var(--line);}
+  .btn:active{transform:scale(.97);}
+  .btn.small{font-size:13.5px; padding:8px 12px; border-radius:8px;}
+  .note{font-size:13.5px; color:var(--ink-soft); margin-top:8px;}
+
+  .toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; font-size:14px; font-weight:600; padding:11px 18px; border-radius:999px; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:80; font-family:'Gothic A1',sans-serif; }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .grid4{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0 4px;}
+  .grid4 .cell{ background:var(--paper-card); border:1px solid var(--line); border-radius:14px; padding:15px; font-size:15.5px; line-height:1.5; }
+  .grid4 .cell b{ display:block; font-family:'Gothic A1',sans-serif; font-weight:800; font-size:14.5px; color:var(--mustard); margin-bottom:5px; }
+
+  .checklist{list-style:none; margin:10px 0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .checklist li{ display:flex; gap:10px; align-items:flex-start; background:var(--paper-card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:15.5px; line-height:1.5; }
+  .checklist.good li::before{content:"✓"; color:var(--good); font-weight:800;}
+
+  .callout{ background:#FBF3E1; border:1px solid var(--mustard); border-radius:12px; padding:13px 15px; font-size:15px; line-height:1.6; color:var(--ink); margin-top:16px; }
+  .callout b{color:#8a6414;}
+
+  .subjectgrid{display:flex; flex-direction:column; gap:12px; margin-top:8px;}
+  .subjectgrid .ex{ background:var(--paper-card); border:1px solid var(--line); border-radius:12px; padding:13px 15px; }
+  .subjectgrid .ex .n{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--mustard); font-weight:700;}
+  .subjectgrid .ex p{margin:5px 0 0; font-size:15.5px; line-height:1.55; font-family:'IBM Plex Mono', monospace;}
+  .exbtns{display:flex; gap:6px; margin-top:9px;}
+
+  .compare{display:flex; flex-direction:column; gap:16px; margin-top:10px;}
+  .comparecol{ background:var(--paper-card); border-radius:14px; padding:15px; border:1px solid var(--line); }
+
+  table.plans{width:100%; border-collapse:collapse; font-size:14.5px; margin-top:10px;}
+  table.plans th, table.plans td{ text-align:left; padding:9px 7px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table.plans th{font-family:'Gothic A1',sans-serif; font-size:13px; color:var(--ink-soft);}
+
+  .faqitem{border:1px solid var(--line); border-radius:12px; margin-bottom:12px; background:var(--paper-card); overflow:hidden;}
+  .faqitem summary{ padding:14px 16px; font-family:'Gothic A1',sans-serif; font-weight:700; font-size:17px; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .faqitem summary::-webkit-details-marker{display:none;}
+  .faqitem summary::after{content:"+"; font-size:20px; color:var(--mustard); font-weight:800; flex:0 0 auto;}
+  .faqitem[open] summary::after{content:"–";}
+  .faqitem .a{padding:0 16px 16px; font-size:16px; line-height:1.7; color:var(--ink-soft);}
+  .faqitem .a b{color:var(--ink);}
+
+  .risk-item{ background:var(--paper-card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .risk-item p{margin:0; font-size:15px; line-height:1.5; flex:1;}
+  .risk-btns{display:flex; gap:6px; flex:0 0 auto;}
+  .riskbtn{ width:38px; height:38px; border-radius:50%; border:2px solid var(--line); background:#fff; font-family:'Gothic A1',sans-serif; font-weight:800; font-size:15px; cursor:pointer; color:var(--ink-soft); }
+  .riskbtn.o.sel{background:var(--bad); border-color:var(--bad); color:#fff;}
+  .riskbtn.x.sel{background:var(--good); border-color:var(--good); color:#fff;}
+  #riskResultBtn{margin-top:6px;}
+  #riskResult{ margin-top:14px; padding:14px 16px; border-radius:12px; font-size:15.5px; font-weight:700; font-family:'Gothic A1',sans-serif; display:none; }
+  #riskResult.show{display:block;}
+  #riskResult.safe{background:var(--good-bg); color:var(--good); border:1px solid var(--good);}
+  #riskResult.warn{background:#FBF3E1; color:#8a6414; border:1px solid var(--mustard);}
+  #riskResult.danger{background:var(--bad-bg); color:#6b4a3a; border:1px solid var(--bad);}
+
+  .hero{ scroll-snap-align:start; min-height:100svh; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:100px 22px 44px; max-width:600px; margin:0 auto; }
+  .hero .kicker{font-family:'IBM Plex Mono',monospace; font-size:14.5px; color:var(--ink-soft); margin-bottom:16px;}
+  .hero h1{font-size:44px; line-height:1.18; margin-bottom:20px;}
+  .hero h1 span{color:var(--mustard);}
+  .hero .sub{font-size:17.5px; color:var(--ink-soft); line-height:1.65; margin-bottom:28px;}
+  .hero .scrolldown{ font-family:'Gothic A1',sans-serif; font-weight:700; font-size:14.5px; color:var(--ink); display:flex; align-items:center; gap:8px; }
+  .hero .scrolldown .arrow{ width:28px;height:28px;border-radius:50%;background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; animation:bob 1.6s ease-in-out infinite; }
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
+
+  .footercard{ scroll-snap-align:start; min-height:60svh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:60px 24px; max-width:480px; margin:0 auto; }
+  .footercard p{font-size:15px; color:var(--ink-soft); line-height:1.7;}
+</style>
+</head>
+<body>
+
+  <div class="storybar" id="storybar"></div>
+  <nav class="partnav" id="partnav">
+    <a href="#hero" data-part="0">시작</a>
+    <a href="#part-1" data-part="1">01 왜 안될까</a>
+    <a href="#part-2" data-part="2">02 나를 점검</a>
+    <a href="#part-3" data-part="3">03 대화법</a>
+    <a href="#part-4" data-part="4">04 과목별</a>
+    <a href="#part-5" data-part="5">05 활용팁</a>
+    <a href="#part-6" data-part="6">06 도구·안전</a>
+    <a href="#part-7" data-part="7">07 막힐 때</a>
+    <a href="#part-8" data-part="8">08 예시모음</a>
+  </nav>
+
+  <div class="toast" id="toast">프롬프트를 복사했어요</div>
+
+  <main class="deck" id="deck">
+
+    <section class="hero" id="hero" data-part="0">
+      <div class="kicker">정보 교과 · AI 학습 활용 가이드</div>
+      <h1>AI한테<br>제대로 <span>물어보는</span> 법</h1>
+      <p class="sub">"삼투압이 뭐야?"라고 물으면 AI는 뻔한 답만 줘요.<br>과외 선생님처럼 되묻게 만드는 법을 카드로 정리했어요.</p>
+      <div class="scrolldown"><span class="arrow">↓</span> 아래로 넘기면서 보기</div>
+    </section>
+
+    <!-- ============ PART 1 ============ -->
+    <section class="card" id="part-1" data-part="1">
+      <div class="eyebrow"><span class="dot"></span>PART 01 · 왜 지금처럼 쓰면 안 될까</div>
+      <h2>단답형의 함정</h2>
+      <p class="lead">질문 한 줄로 던지면 AI는 가장 무난하고 평균적인 답만 줘요. 그래서 다음 날 비슷한 문제를 만나면 또 막혀요.</p>
+      <div class="thread">
+        <div class="bubble me">삼투압이 뭐야?</div>
+        <div class="bubble ai">삼투압이란 반투과성 막을 사이에 두고 용매가 이동할 때 발생하는 압력으로…… (계속 설명이 쏟아짐)</div>
+      </div>
+      <div class="callout"><b>문제는</b> 내가 아무것도 안 했다는 것. 읽기만 하면 다음 날 기억이 안 나요.</div>
+    </section>
+
+    <section class="card" data-part="1">
+      <div class="eyebrow"><span class="dot"></span>PART 01 · 02</div>
+      <h2>좋은 질문의 4요소</h2>
+      <p class="lead">이 4가지가 빠지면 AI는 빈칸을 마음대로 채워요.</p>
+      <div class="grid4">
+        <div class="cell"><b>① 무엇을</b>지금 공부하는 개념 (예: 삼투압)</div>
+        <div class="cell"><b>② 수준</b>어느 정도 아는지 (예: 고1, 처음 배움)</div>
+        <div class="cell"><b>③ 목표</b>왜 필요한지 (예: 개념 이해, 시험 대비)</div>
+        <div class="cell"><b>④ 반응 방식</b>AI가 어떻게 답해야 하는지 (예: 바로 답 말고 질문부터)</div>
+      </div>
+      <p class="lead" style="margin-top:20px; font-size:16px;">같은 "삼투압"을 물어봐도 이렇게 결과가 달라요. 둘 다 눌러서 직접 비교해보세요.</p>
+      <div class="compare">
+        <div class="comparecol">
+          <span class="tag bad">4요소 없음</span>
+          <div class="promptbox" style="border-left-color:var(--bad)">삼투압 설명해줘</div>
+          <div class="btnrow" data-prompt="삼투압 설명해줘">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="comparecol">
+          <span class="tag good">4요소 다 넣음</span>
+          <div class="promptbox">나는 고1이고 삼투압을 처음 배워. 시험 대비로 개념을 확실히 이해하고 싶어. 정답을 바로 알려주지 말고, 내가 이미 아는 걸 질문으로 먼저 확인해줘.</div>
+          <div class="btnrow" data-prompt="나는 고1이고 삼투압을 처음 배워. 시험 대비로 개념을 확실히 이해하고 싶어. 정답을 바로 알려주지 말고, 내가 이미 아는 걸 질문으로 먼저 확인해줘.">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PART 2 ============ -->
+    <section class="card" id="part-2" data-part="2">
+      <div class="eyebrow"><span class="dot"></span>PART 02 · 나를 돌아보는 데 AI 활용하기</div>
+      <h2>내 말·행동, 객관적으로 점검하기</h2>
+      <p class="lead">누구한테도 말하기 애매한 상황을, AI한테는 편하게 복기해볼 수 있어요.</p>
+      <div class="promptbox">친구랑 다퉜는데 그때 내가 한 말을 그대로 옮길게.
+<span class="ph">(실제 대화 내용을 여기에 작성)</span>
+내가 놓친 부분이 있으면 질문으로 짚어줘.</div>
+      <div class="btnrow" data-prompt="친구랑 다퉜는데 그때 내가 한 말을 그대로 옮길게. (실제 대화 내용을 여기에 작성) 내가 놓친 부분이 있으면 질문으로 짚어줘.">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT에서 열기</button>
+        <button class="btn claude" data-provider="claude">Claude에서 열기</button>
+        <button class="btn copy" data-provider="copy">복사만 하기</button>
+      </div>
+      <div class="note">괄호 안 문장을 실제 상황으로 바꾼 다음 눌러도 되고, 일단 열어서 채팅창에서 직접 바꿔도 돼요.</div>
+    </section>
+
+    <section class="card" data-part="2">
+      <div class="eyebrow"><span class="dot"></span>PART 02 · 02</div>
+      <h2>발표·글쓰기 전, 내 표현 점검하기</h2>
+      <p class="lead">정답을 고쳐달라고 하지 말고, 스스로 알아채게 질문을 요청하세요.</p>
+      <div class="promptbox">내가 쓴 자기소개를 보여줄게.
+<span class="ph">(실제 자기소개 내용을 여기에 작성)</span>
+어색하거나 오해살 수 있는 표현 있으면 질문으로 확인해줘.</div>
+      <div class="btnrow" data-prompt="내가 쓴 자기소개를 보여줄게. (실제 자기소개 내용을 여기에 작성) 어색하거나 오해살 수 있는 표현 있으면 질문으로 확인해줘.">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT에서 열기</button>
+        <button class="btn claude" data-provider="claude">Claude에서 열기</button>
+        <button class="btn copy" data-provider="copy">복사만 하기</button>
+      </div>
+    </section>
+
+    <section class="card" data-part="2">
+      <div class="eyebrow"><span class="dot"></span>PART 02 · 03</div>
+      <h2>공부 습관·목표 돌아보기</h2>
+      <div class="promptbox">이번 주 계획을 못 지켰어.
+<span class="ph">(못 지킨 계획을 여기에 작성)</span>
+왜 그랬는지 내가 먼저 생각해볼 테니 질문으로 점검해줘.</div>
+      <div class="btnrow" data-prompt="이번 주 계획을 못 지켰어. (못 지킨 계획을 여기에 작성) 왜 그랬는지 내가 먼저 생각해볼 테니 질문으로 점검해줘.">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT에서 열기</button>
+        <button class="btn claude" data-provider="claude">Claude에서 열기</button>
+        <button class="btn copy" data-provider="copy">복사만 하기</button>
+      </div>
+      <div class="callout"><b>기억할 것 —</b> 힘들고 무거운 고민은 AI 말고 선생님이나 가족한테 먼저 말하세요. AI는 가벼운 점검용이에요.</div>
+    </section>
+
+    <!-- ============ PART 3 ============ -->
+    <section class="card" id="part-3" data-part="3">
+      <div class="eyebrow"><span class="dot"></span>PART 03 · 과외처럼 대화하는 법</div>
+      <h2>질문 쪼개기</h2>
+      <p class="lead">막히면 통째로 묻지 말고, 이해 안 되는 부분만 잘라서 다시 물어보세요. 아래 두 개를 직접 눌러서 답이 어떻게 다른지 비교해보세요.</p>
+      <div class="compare">
+        <div class="comparecol">
+          <span class="tag bad">이렇게 X</span>
+          <div class="promptbox" style="border-left-color:var(--bad)">생물 삼투압 단원 다 설명해줘</div>
+          <div class="btnrow" data-prompt="생물 삼투압 단원 다 설명해줘">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="comparecol">
+          <span class="tag good">이렇게 O</span>
+          <div class="promptbox">생물 삼투압 단원에서 왜 물이 이동하는지는 이해했는데, 농도 기울기랑 압력 관계만 아직 헷갈려. 이 부분만 짚어줘.</div>
+          <div class="btnrow" data-prompt="생물 삼투압 단원에서 왜 물이 이동하는지는 이해했는데, 농도 기울기랑 압력 관계만 아직 헷갈려. 이 부분만 짚어줘.">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-part="3">
+      <div class="eyebrow"><span class="dot"></span>PART 03 · 02</div>
+      <h2>꼬리질문 이어가기</h2>
+      <p class="lead">답을 받고 끝내지 말고 계속 이어가세요. 1번을 먼저 보내서 답을 읽은 다음, 2번을 이어서 보내보세요.</p>
+      <div class="promptbox"><span class="ph">1)</span> <span class="ph">(방금 배운 개념을 여기에 작성)</span>이 왜 그렇게 되는지 설명해줘.</div>
+      <div class="btnrow" data-prompt="(방금 배운 개념을 여기에 작성)이 왜 그렇게 되는지 설명해줘.">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+        <button class="btn claude" data-provider="claude">Claude</button>
+      </div>
+      <div class="promptbox" style="margin-top:16px;"><span class="ph">2)</span> 그럼 조건이 <span class="ph">(달라지는 조건을 여기에 작성)</span>로 바뀌면 어떻게 돼?</div>
+      <div class="btnrow" data-prompt="그럼 조건이 (달라지는 조건을 여기에 작성)로 바뀌면 어떻게 돼?">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+        <button class="btn claude" data-provider="claude">Claude</button>
+      </div>
+      <div class="note">2번은 1번 대화 창에 이어서 붙여야 효과가 있어요. 새 채팅에 따로 보내면 맥락이 끊겨요.</div>
+    </section>
+
+    <section class="card" data-part="3">
+      <div class="eyebrow"><span class="dot"></span>PART 03 · 03</div>
+      <h2>내 상태 말하고 맞춤 설명 받기</h2>
+      <p class="lead">두 버전을 비교해보세요. 차이는 딱 한 문장, 내 상태를 말했는지 여부예요.</p>
+      <div class="compare">
+        <div class="comparecol">
+          <span class="tag bad">상태 안 알림</span>
+          <div class="promptbox" style="border-left-color:var(--bad)">함수 설명해줘</div>
+          <div class="btnrow" data-prompt="함수 설명해줘">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="comparecol">
+          <span class="tag good">상태 알림</span>
+          <div class="promptbox">나는 고1이고 이 개념 처음 배워. <span class="ph">(개념 이름을 여기에 작성)</span>을 설명해줄 때, 방금 답변에서 <span class="ph">(어려웠던 단어를 여기에 작성)</span>가 너무 어려운 단어였어. 더 쉬운 말로 다시 설명해줘.</div>
+          <div class="btnrow" data-prompt="나는 고1이고 이 개념 처음 배워. (개념 이름을 여기에 작성)을 설명해줄 때, 방금 답변에서 (어려웠던 단어를 여기에 작성)가 너무 어려운 단어였어. 더 쉬운 말로 다시 설명해줘.">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-part="3">
+      <div class="eyebrow"><span class="dot"></span>PART 03 · 04</div>
+      <h2>Before / After 직접 비교하기</h2>
+      <p class="lead">아래 두 프롬프트를 각각 눌러서 결과 차이를 직접 확인해보세요.</p>
+      <div class="compare">
+        <div class="comparecol">
+          <span class="tag bad">단순 질문</span>
+          <div class="promptbox" style="border-left-color:var(--bad)">함수 설명해줘</div>
+          <div class="btnrow" data-prompt="함수 설명해줘">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="comparecol">
+          <span class="tag good">제대로 된 질문</span>
+          <div class="promptbox">나는 고1이고 함수를 처음 배워. 정답부터 알려주지 말고, 내가 이미 아는 게 뭔지 먼저 질문해줘. 내 답을 들은 다음 부족한 부분만 짧게 채워줘.</div>
+          <div class="btnrow" data-prompt="나는 고1이고 함수를 처음 배워. 정답부터 알려주지 말고, 내가 이미 아는 게 뭔지 먼저 질문해줘. 내 답을 들은 다음 부족한 부분만 짧게 채워줘.">
+            <button class="btn chatgpt" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PART 4 ============ -->
+    <section class="card" id="part-4" data-part="4">
+      <div class="eyebrow"><span class="dot"></span>PART 04 · 과목별 개념 공부법</div>
+      <h2>국어</h2>
+      <p class="lead">정답부터 받지 말고, 내가 아는 걸 먼저 말해보세요.</p>
+      <div class="subjectgrid">
+        <div class="ex">
+          <span class="n">01</span>
+          <p>고1인데 문학에서 '상징'이 뭔지 감이 안 와. 정답 바로 알려주지 말고, 내가 아는 걸 먼저 물어봐서 오개념 있으면 짚어줘.</p>
+          <div class="exbtns" data-prompt="고1인데 문학에서 '상징'이 뭔지 감이 안 와. 정답 바로 알려주지 말고, 내가 아는 걸 먼저 물어봐서 오개념 있으면 짚어줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">02</span>
+          <p>이 지문 속 화자의 정서 변화를 못 찾겠어. <span class="ph">(실제 지문을 여기에 작성)</span> 답을 알려주지 말고, 내가 어느 부분에서 놓쳤는지 질문으로 찾아줘.</p>
+          <div class="exbtns" data-prompt="이 지문 속 화자의 정서 변화를 못 찾겠어. (실제 지문을 여기에 작성) 답을 알려주지 말고, 내가 어느 부분에서 놓쳤는지 질문으로 찾아줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">03</span>
+          <p>관형사랑 형용사 차이가 계속 헷갈려. 내가 아는 예문을 먼저 말해볼 테니 듣고 오개념이 있으면 질문으로 짚어줘.</p>
+          <div class="exbtns" data-prompt="관형사랑 형용사 차이가 계속 헷갈려. 내가 아는 예문을 먼저 말해볼 테니 듣고 오개념이 있으면 질문으로 짚어줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-part="4">
+      <div class="eyebrow"><span class="dot"></span>PART 04 · 과목별 개념 공부법</div>
+      <h2>영어</h2>
+      <div class="subjectgrid">
+        <div class="ex">
+          <span class="n">01</span>
+          <p>가정법 과거완료가 뭔지 헷갈려. 예문 하나 주고 나보고 해석해보라고 한 다음, 틀린 부분만 질문으로 고쳐줘.</p>
+          <div class="exbtns" data-prompt="가정법 과거완료가 뭔지 헷갈려. 예문 하나 주고 나보고 해석해보라고 한 다음, 틀린 부분만 질문으로 고쳐줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">02</span>
+          <p>affect랑 effect 차이를 내가 먼저 추측해볼게. 맞았는지 질문으로 확인해줘.</p>
+          <div class="exbtns" data-prompt="affect랑 effect 차이를 내가 먼저 추측해볼게. 맞았는지 질문으로 확인해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">03</span>
+          <p>이 문장 구조가 안 풀려. <span class="ph">(실제 문장을 여기에 작성)</span> 답을 알려주지 말고 문장을 끊어 읽게 질문을 던져줘.</p>
+          <div class="exbtns" data-prompt="이 문장 구조가 안 풀려. (실제 문장을 여기에 작성) 답을 알려주지 말고 문장을 끊어 읽게 질문을 던져줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-part="4">
+      <div class="eyebrow"><span class="dot"></span>PART 04 · 과목별 개념 공부법</div>
+      <h2>수학</h2>
+      <div class="subjectgrid">
+        <div class="ex">
+          <span class="n">01</span>
+          <p>이차함수 판별식이 왜 그런 의미를 갖는지 개념이 안 잡혀. 내가 아는 정의부터 말해볼 테니 질문으로 빈틈을 찾아줘.</p>
+          <div class="exbtns" data-prompt="이차함수 판별식이 왜 그런 의미를 갖는지 개념이 안 잡혀. 내가 아는 정의부터 말해볼 테니 질문으로 빈틈을 찾아줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">02</span>
+          <p>이 문제 어디서 막혔는지부터 물어보고, 막힌 단계까지만 힌트 줘. <span class="ph">(실제 문제를 여기에 작성)</span> 전체 풀이는 알려주지 마.</p>
+          <div class="exbtns" data-prompt="이 문제 어디서 막혔는지부터 물어보고, 막힌 단계까지만 힌트 줘. (실제 문제를 여기에 작성) 전체 풀이는 알려주지 마.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">03</span>
+          <p>함수랑 방정식 관계가 헷갈려. 내가 예시로 설명해볼 테니 맞는지 질문으로 확인해줘.</p>
+          <div class="exbtns" data-prompt="함수랑 방정식 관계가 헷갈려. 내가 예시로 설명해볼 테니 맞는지 질문으로 확인해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-part="4">
+      <div class="eyebrow"><span class="dot"></span>PART 04 · 과목별 개념 공부법</div>
+      <h2>사회</h2>
+      <div class="subjectgrid">
+        <div class="ex">
+          <span class="n">01</span>
+          <p>기본권이 뭔지 정의부터 헷갈려. 내가 아는 정의를 말해볼 테니 사례를 들어 맞는지 확인 질문해줘.</p>
+          <div class="exbtns" data-prompt="기본권이 뭔지 정의부터 헷갈려. 내가 아는 정의를 말해볼 테니 사례를 들어 맞는지 확인 질문해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">02</span>
+          <p>시장실패에 해당하는 사례와 아닌 사례를 구분 못하겠어. 사례 하나씩 줄 테니 맞는지 물어봐줘.</p>
+          <div class="exbtns" data-prompt="시장실패에 해당하는 사례와 아닌 사례를 구분 못하겠어. 사례 하나씩 줄 테니 맞는지 물어봐줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">03</span>
+          <p>이 개념이 최근 이슈랑 어떻게 연결되는지 내가 먼저 생각해볼게, 질문으로 점검해줘.</p>
+          <div class="exbtns" data-prompt="이 개념이 최근 이슈랑 어떻게 연결되는지 내가 먼저 생각해볼게, 질문으로 점검해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-part="4">
+      <div class="eyebrow"><span class="dot"></span>PART 04 · 과목별 개념 공부법</div>
+      <h2>과학</h2>
+      <div class="subjectgrid">
+        <div class="ex">
+          <span class="n">01</span>
+          <p>삼투압이 왜 일어나는지 원리가 안 잡혀. 내가 아는 걸 먼저 물어보고 오개념 짚어줘.</p>
+          <div class="exbtns" data-prompt="삼투압이 왜 일어나는지 원리가 안 잡혀. 내가 아는 걸 먼저 물어보고 오개념 짚어줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">02</span>
+          <p>이 공식이 왜 이렇게 유도되는지 이해가 안 가. 유도 과정을 질문으로 하나씩 따라가게 해줘.</p>
+          <div class="exbtns" data-prompt="이 공식이 왜 이렇게 유도되는지 이해가 안 가. 유도 과정을 질문으로 하나씩 따라가게 해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">03</span>
+          <p>이 실험 결과가 왜 이렇게 나왔는지 내가 추론해볼게. <span class="ph">(실제 실험 결과를 여기에 작성)</span> 맞는지 확인 질문해줘.</p>
+          <div class="exbtns" data-prompt="이 실험 결과가 왜 이렇게 나왔는지 내가 추론해볼게. (실제 실험 결과를 여기에 작성) 맞는지 확인 질문해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-part="4">
+      <div class="eyebrow"><span class="dot"></span>PART 04 · 과목별 개념 공부법</div>
+      <h2>프로그래밍 (파이썬)</h2>
+      <p class="lead">정보 수업에서 배우는 코드도 같은 방식으로 물어보세요.</p>
+      <div class="subjectgrid">
+        <div class="ex">
+          <span class="n">01</span>
+          <p>파이썬 반복문에서 for랑 while 차이를 모르겠어. <span class="ph">(실제 헷갈리는 상황을 여기에 작성)</span> 내가 아는 걸 먼저 물어보고 오개념 짚어줘.</p>
+          <div class="exbtns" data-prompt="파이썬 반복문에서 for랑 while 차이를 모르겠어. (실제 헷갈리는 상황을 여기에 작성) 내가 아는 걸 먼저 물어보고 오개념 짚어줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">02</span>
+          <p>이 코드가 왜 에러가 나는지 모르겠어. <span class="ph">(실제 에러난 코드를 여기에 작성)</span> 정답 코드는 알려주지 말고, 어디가 문제인지 질문으로 찾게 해줘.</p>
+          <div class="exbtns" data-prompt="이 코드가 왜 에러가 나는지 모르겠어. (실제 에러난 코드를 여기에 작성) 정답 코드는 알려주지 말고, 어디가 문제인지 질문으로 찾게 해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">03</span>
+          <p>함수랑 변수 범위(scope) 개념이 헷갈려. 내가 아는 정의를 먼저 말해볼 테니 질문으로 확인해줘.</p>
+          <div class="exbtns" data-prompt="함수랑 변수 범위(scope) 개념이 헷갈려. 내가 아는 정의를 먼저 말해볼 테니 질문으로 확인해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PART 5 ============ -->
+    <section class="card" id="part-5" data-part="5">
+      <div class="eyebrow"><span class="dot"></span>PART 05 · 더 똑똑하게 쓰는 법</div>
+      <h2>말하면서 배우기 (파인만 기법)</h2>
+      <p class="lead">배운 걸 내 입으로 설명해보면 빈틈이 바로 드러나요.</p>
+      <div class="promptbox">방금 배운 <span class="ph">(배운 개념 이름을 여기에 작성)</span>을 초등학생한테 설명하듯 말해볼게. 들어보고 빈틈 있으면 질문으로 짚어줘.</div>
+      <div class="btnrow" data-prompt="방금 배운 (배운 개념 이름을 여기에 작성)을 초등학생한테 설명하듯 말해볼게. 들어보고 빈틈 있으면 질문으로 짚어줘.">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT에서 열기</button>
+        <button class="btn claude" data-provider="claude">Claude에서 열기</button>
+        <button class="btn copy" data-provider="copy">복사만 하기</button>
+      </div>
+    </section>
+
+    <section class="card" data-part="5">
+      <div class="eyebrow"><span class="dot"></span>PART 05 · 02</div>
+      <h2>사진·노트 올려서 질문하기</h2>
+      <p class="lead">교과서나 필기 사진을 찍어 올리고 바로 물어보세요. 타이핑 안 해도 돼요.</p>
+      <div class="promptbox"><span class="ph">(교과서나 필기 사진을 여기에 첨부)</span> 이 부분 개념 확인해줘. 내가 알고 있는 걸 먼저 물어봐줘.</div>
+      <div class="btnrow" data-prompt="이 부분 개념 확인해줘. 내가 알고 있는 걸 먼저 물어봐줘. (사진은 채팅창에서 직접 첨부하세요)">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT에서 열기</button>
+        <button class="btn claude" data-provider="claude">Claude에서 열기</button>
+      </div>
+      <div class="note">링크를 열면 문장만 채워져요. 사진은 채팅창에서 클립 아이콘을 눌러 직접 첨부하세요.</div>
+      <div class="callout">ChatGPT, Claude 모두 사진 속 글자와 그림을 읽고 이해할 수 있어요.</div>
+    </section>
+
+    <section class="card" data-part="5">
+      <div class="eyebrow"><span class="dot"></span>PART 05 · 03</div>
+      <h2>시험 계획 세우기</h2>
+      <div class="promptbox">이번 주 시험 범위가 <span class="ph">(실제 시험 범위를 여기에 작성)</span>야. 하루 1시간씩 5일 계획 짜줘.</div>
+      <div class="btnrow" data-prompt="이번 주 시험 범위가 (실제 시험 범위를 여기에 작성)야. 하루 1시간씩 5일 계획 짜줘.">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT에서 열기</button>
+        <button class="btn claude" data-provider="claude">Claude에서 열기</button>
+        <button class="btn copy" data-provider="copy">복사만 하기</button>
+      </div>
+    </section>
+
+    <section class="card" data-part="5">
+      <div class="eyebrow"><span class="dot"></span>PART 05 · 04</div>
+      <h2>오답노트 재점검 루틴</h2>
+      <div class="promptbox">이 문제 틀렸어. <span class="ph">(실제 틀린 문제를 여기에 작성)</span> 정답 알려주지 말고, 어디서 잘못 생각했는지 질문으로 짚어줘.</div>
+      <div class="btnrow" data-prompt="이 문제 틀렸어. (실제 틀린 문제를 여기에 작성) 정답 알려주지 말고, 어디서 잘못 생각했는지 질문으로 짚어줘.">
+        <button class="btn chatgpt" data-provider="chatgpt">ChatGPT에서 열기</button>
+        <button class="btn claude" data-provider="claude">Claude에서 열기</button>
+        <button class="btn copy" data-provider="copy">복사만 하기</button>
+      </div>
+    </section>
+
+    <!-- ============ PART 6 ============ -->
+    <section class="card" id="part-6" data-part="6">
+      <div class="eyebrow"><span class="dot"></span>PART 06 · 도구 고르고 안전하게 쓰기</div>
+      <h2>무료 vs 유료, 뭐가 다를까</h2>
+      <p class="lead">2026년 6월 기준입니다. 요금과 한도는 자주 바뀌니 결제 전 공식 페이지에서 다시 확인하세요.</p>
+      <table class="plans">
+        <tr><th></th><th>무료</th><th>유료</th></tr>
+        <tr><td>메시지 한도</td><td>ChatGPT 5시간당 약 10개<br>Claude 5시간당 약 15~40회</td><td>ChatGPT Plus 3시간당 약 160개<br>Claude Pro 대폭 확대</td></tr>
+        <tr><td>가격</td><td>0원</td><td>ChatGPT Plus 월 $20<br>Claude Pro 월 $20 (연결제 $17)</td></tr>
+        <tr><td>긴 문서 처리</td><td>가능하지만 분량 제한 있음</td><td>더 긴 문서를 한 번에 첨부 가능</td></tr>
+        <tr><td>고급 기능</td><td>기본 모델만</td><td>추론 모델, 에이전트 모드 등 추가</td></tr>
+      </table>
+      <p class="lead" style="font-size:16px; margin-top:18px;">학습 목적이면 무료로 대부분 충분해요. 유료를 고려할 시점은 이런 경우예요.</p>
+      <ul class="checklist good">
+        <li>수행평가 범위 전체 자료를 한 번에 업로드해서 통으로 대화하고 싶을 때</li>
+        <li>하루에 여러 과목을 몰아서 질문하는데 무료 한도에 자주 걸릴 때</li>
+        <li>같은 대화창에서 몇 주 동안 이어서 복습하고 싶을 때</li>
+      </ul>
+    </section>
+
+    <section class="card" data-part="6">
+      <div class="eyebrow"><span class="dot"></span>PART 06 · 02</div>
+      <h2>처음 쓰는 사람 팁</h2>
+      <ul class="checklist good">
+        <li>무료로 2주 정도 써보고 한도에 자주 걸리는지 확인하기</li>
+        <li>질문이 안 맞으면 "수준을 낮추고 예시를 들어 다시 질문해줘"라고 바로 요청하기</li>
+        <li>같은 질문을 ChatGPT·Claude 둘 다에 던져서 답 비교해보기</li>
+      </ul>
+    </section>
+
+    <section class="card" data-part="6">
+      <div class="eyebrow"><span class="dot"></span>PART 06 · 03</div>
+      <h2>위험 신호 체크</h2>
+      <p class="lead">해당하면 O, 아니면 X를 눌러보세요. 다 누르면 결과를 확인할 수 있어요.</p>
+
+      <div class="risk-item" data-id="1">
+        <p>AI 답을 그대로 복붙해서 제출한 적 있다</p>
+        <div class="risk-btns"><button class="riskbtn o" data-value="o">O</button><button class="riskbtn x" data-value="x">X</button></div>
+      </div>
+      <div class="risk-item" data-id="2">
+        <p>한 번에 다 설명해달라고 요청한다</p>
+        <div class="risk-btns"><button class="riskbtn o" data-value="o">O</button><button class="riskbtn x" data-value="x">X</button></div>
+      </div>
+      <div class="risk-item" data-id="3">
+        <p>질문 없이 답만 받아적기만 한다</p>
+        <div class="risk-btns"><button class="riskbtn o" data-value="o">O</button><button class="riskbtn x" data-value="x">X</button></div>
+      </div>
+      <div class="risk-item" data-id="4">
+        <p>과제에 AI 이름·프롬프트를 안 남기고 제출한다</p>
+        <div class="risk-btns"><button class="riskbtn o" data-value="o">O</button><button class="riskbtn x" data-value="x">X</button></div>
+      </div>
+      <div class="risk-item" data-id="5">
+        <p>AI가 하는 말은 다 맞다고 믿는다</p>
+        <div class="risk-btns"><button class="riskbtn o" data-value="o">O</button><button class="riskbtn x" data-value="x">X</button></div>
+      </div>
+
+      <button class="btn chatgpt" id="riskResultBtn">결과 확인하기</button>
+      <div id="riskResult"></div>
+    </section>
+
+    <section class="card" data-part="6">
+      <div class="eyebrow"><span class="dot"></span>PART 06 · 04</div>
+      <h2>학교 규정, 이건 알아두기</h2>
+      <ul class="checklist good">
+        <li>2026학년도부터 수행평가 AI 활용 범위는 과목마다 사전에 공지돼요</li>
+        <li>AI를 썼다면 어떤 AI·무슨 질문·어떻게 활용했는지 남겨야 해요</li>
+        <li>이름, 학번, 생년월일, 연락처 같은 개인정보는 절대 입력하지 마세요</li>
+      </ul>
+    </section>
+
+    <!-- ============ PART 7 ============ -->
+    <section class="card" id="part-7" data-part="7">
+      <div class="eyebrow"><span class="dot"></span>PART 07 · 막힐 때</div>
+      <h2>자주 묻는 질문</h2>
+      <details class="faqitem">
+        <summary>AI가 계속 정답부터 주면 어떻게 해?</summary>
+        <div class="a">AI는 기본적으로 빠르고 친절하게 답을 다 주려는 방향으로 만들어져 있어요. 그래서 "질문부터 해줘"라고 한 번 말해도 몇 턴 지나면 다시 정답을 먼저 주는 경우가 많아요. <b>대응법은 규칙을 프롬프트 맨 앞에 명확하게 박아두는 거예요.</b> 예를 들어 "정답을 절대 먼저 말하지 말고, 질문부터 3개 이상 해줘. 내가 답한 뒤에만 설명을 추가해줘"처럼 순서와 개수까지 구체적으로 지정하면 훨씬 잘 지켜져요. 그래도 안 지켜지면 "방금 정답부터 말했어, 다시 질문부터 해줘"라고 그 자리에서 바로 지적하세요.</div>
+      </details>
+      <details class="faqitem">
+        <summary>질문을 안 해주고 설명만 하면?</summary>
+        <div class="a">"설명 대신 나한테 질문 하나만 던져줘"라고 즉시 요청하세요. 그래도 계속 설명 위주로 나오면 "질문 1개, 그 외에는 아무것도 쓰지 마"처럼 출력 형식 자체를 제한하는 게 효과적이에요. 참고로 ChatGPT에는 정답을 바로 안 주고 질문을 던지며 스스로 답을 찾게 유도하는 '스터디 모드'가 내장되어 있어요. 매번 규칙을 적기 번거로우면 이 모드를 켜보는 것도 방법이에요.</div>
+      </details>
+      <details class="faqitem">
+        <summary>AI 답이 틀린 것 같으면?</summary>
+        <div class="a">AI는 사실을 검증하는 도구가 아니라 확률적으로 그럴듯한 답을 만드는 도구예요. 확신이 안 서면 이렇게 확인하세요. <b>① 교과서·수업 필기와 대조하기</b> — 가장 먼저 할 일이에요. <b>② 다른 AI에게 같은 질문 다시 던지기</b> — ChatGPT와 Claude 답이 다르면 둘 다 의심하고 근거를 물어보세요. <b>③ 선생님께 확인하기</b> — 시험이나 과제에 들어갈 내용이면 반드시 사람에게 최종 확인받으세요. AI가 자신 있게 말한다고 해서 맞다는 뜻은 아니에요.</div>
+      </details>
+    </section>
+
+    <!-- ============ PART 8 ============ -->
+    <section class="card" id="part-8" data-part="8">
+      <div class="eyebrow"><span class="dot"></span>PART 08 · 제대로 된 질문 예시 모음</div>
+      <h2>이런 식이면 됩니다</h2>
+      <p class="lead">지금까지 배운 걸 다 합친 완성형 문장 5개예요. 바로 눌러서 어떤 느낌인지 확인해보세요.</p>
+      <div class="subjectgrid">
+        <div class="ex">
+          <span class="n">01 · 물리</span>
+          <p>나는 고1이고 물리에서 등가속도 운동 공식을 처음 배워. 시험 대비로 개념을 확실히 이해하고 싶어. 정답을 바로 알려주지 말고, 내가 이미 아는 걸 질문으로 먼저 확인해줘.</p>
+          <div class="exbtns" data-prompt="나는 고1이고 물리에서 등가속도 운동 공식을 처음 배워. 시험 대비로 개념을 확실히 이해하고 싶어. 정답을 바로 알려주지 말고, 내가 이미 아는 걸 질문으로 먼저 확인해줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">02 · 국어</span>
+          <p>국어 문학 지문에서 반어법이 헷갈려. 내가 예문을 먼저 말해볼 테니, 맞는지 질문으로 확인하고 오개념 있으면 짚어줘.</p>
+          <div class="exbtns" data-prompt="국어 문학 지문에서 반어법이 헷갈려. 내가 예문을 먼저 말해볼 테니, 맞는지 질문으로 확인하고 오개념 있으면 짚어줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">03 · 프로그래밍</span>
+          <p>파이썬 리스트랑 튜플 차이를 알고 싶은데, 한 번에 다 말고 질문 2개로 나눠서 물어봐줘. 내가 답하면 그다음 질문으로 넘어가줘.</p>
+          <div class="exbtns" data-prompt="파이썬 리스트랑 튜플 차이를 알고 싶은데, 한 번에 다 말고 질문 2개로 나눠서 물어봐줘. 내가 답하면 그다음 질문으로 넘어가줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">04 · 영어</span>
+          <p>영어 관계대명사가 계속 헷갈려. 내가 아는 정의를 먼저 말해볼게. 듣고 오개념 있으면 질문으로 짚어주고, 맞으면 예문 하나로 확인시켜줘.</p>
+          <div class="exbtns" data-prompt="영어 관계대명사가 계속 헷갈려. 내가 아는 정의를 먼저 말해볼게. 듣고 오개념 있으면 질문으로 짚어주고, 맞으면 예문 하나로 확인시켜줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+        <div class="ex">
+          <span class="n">05 · 한국사 · 계획</span>
+          <p>이번 주 한국사 시험 범위가 조선 후기 정치야. 하루 1시간씩 4일 계획을 짜주는데, 마지막 날은 내가 직접 설명해보고 네가 질문으로 점검하는 날로 짜줘.</p>
+          <div class="exbtns" data-prompt="이번 주 한국사 시험 범위가 조선 후기 정치야. 하루 1시간씩 4일 계획을 짜주는데, 마지막 날은 내가 직접 설명해보고 네가 질문으로 점검하는 날로 짜줘.">
+            <button class="btn chatgpt small" data-provider="chatgpt">ChatGPT</button>
+            <button class="btn claude small" data-provider="claude">Claude</button>
+          </div>
+        </div>
+      </div>
+      <div class="callout"><b>공통점 —</b> 무엇을·수준·목표·반응 방식, 이 4가지가 문장 안에 다 들어 있어요.</div>
+    </section>
+
+    <section class="footercard">
+      <p>정보 교과 · AI 학습 활용 가이드<br>과외처럼 되묻는 습관이 진짜 실력을 남깁니다.</p>
+      <p style="margin-top:18px; font-size:12.5px; opacity:.7;">© 2026 pirugiru. All rights reserved.</p>
+    </section>
+
+  </main>
+
+<script>
+  const parts = ["1","2","3","4","5","6","7","8"];
+  const storybar = document.getElementById('storybar');
+  parts.forEach(p=>{
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.dataset.part = p;
+    seg.innerHTML = '<i></i>';
+    storybar.appendChild(seg);
+  });
+
+  const cards = Array.from(document.querySelectorAll('[data-part]'));
+  const navLinks = Array.from(document.querySelectorAll('.partnav a'));
+  const segs = Array.from(document.querySelectorAll('.storybar .seg'));
+
+  function setActivePart(part){
+    navLinks.forEach(a=> a.classList.toggle('active', a.dataset.part === part));
+    let reached = true;
+    segs.forEach(seg=>{
+      if(seg.dataset.part === part){ reached = false; seg.classList.add('done'); }
+      else if(reached){ seg.classList.add('done'); }
+      else { seg.classList.remove('done'); }
+    });
+  }
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        setActivePart(entry.target.dataset.part || "0");
+      }
+    });
+  }, {root:document.getElementById('deck'), threshold:0.55});
+  cards.forEach(c=> io.observe(c));
+
+  navLinks.forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const id = a.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if(target) target.scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  const toast = document.getElementById('toast');
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 1600);
+  }
+
+  document.querySelectorAll('button[data-provider]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const wrap = btn.closest('[data-prompt]');
+      if(!wrap) return;
+      const text = wrap.dataset.prompt;
+      const provider = btn.dataset.provider;
+      try{
+        await navigator.clipboard.writeText(text);
+        showToast('프롬프트를 복사했어요');
+      }catch(e){ /* 클립보드 실패해도 링크는 열림 */ }
+
+      if(provider === 'chatgpt'){
+        window.open('https://chatgpt.com/?q=' + encodeURIComponent(text), '_blank');
+      } else if(provider === 'claude'){
+        window.open('https://claude.ai/new?q=' + encodeURIComponent(text), '_blank');
+      }
+    });
+  });
+
+  const riskState = {};
+  document.querySelectorAll('.risk-item').forEach(item=>{
+    const id = item.dataset.id;
+    item.querySelectorAll('.riskbtn').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        riskState[id] = b.dataset.value;
+        item.querySelectorAll('.riskbtn').forEach(x=>x.classList.remove('sel'));
+        b.classList.add('sel');
+      });
+    });
+  });
+  document.getElementById('riskResultBtn').addEventListener('click', ()=>{
+    const total = Object.keys(riskState).length;
+    const box = document.getElementById('riskResult');
+    box.classList.remove('safe','warn','danger');
+    if(total < 5){
+      box.textContent = '아직 답하지 않은 항목이 있어요. 5개 모두 체크해보세요.';
+      box.classList.add('warn');
+    } else {
+      const oCount = Object.values(riskState).filter(v=>v==='o').length;
+      if(oCount === 0){
+        box.textContent = 'O가 0개예요. 지금처럼 쓰면 괜찮아요.';
+        box.classList.add('safe');
+      } else if(oCount <= 2){
+        box.textContent = 'O가 ' + oCount + '개예요. 몇 가지 습관은 점검이 필요해요.';
+        box.classList.add('warn');
+      } else {
+        box.textContent = 'O가 ' + oCount + '개예요. 위험해요! 지금 방식은 학습 효과가 거의 없어요.';
+        box.classList.add('danger');
+      }
+    }
+    box.classList.add('show');
+  });
+</script>
+</body>
+</html>
