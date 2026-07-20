@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f8fafc" />
+  <title>지원단용 해커톤 전체 흐름</title>
+  <style>
+    :root{
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --line:#dce4ef;
+
+      --student:#fff7df;
+      --student-line:#f2c94c;
+      --student-text:#8a5a00;
+
+      --maker:#eaf3ff;
+      --maker-line:#3b82f6;
+      --maker-text:#174ea6;
+
+      --ai:#e9f9f3;
+      --ai-line:#10b981;
+      --ai-text:#0b6b4f;
+
+      --mixed:#f2ecff;
+      --mixed-line:#8b5cf6;
+      --mixed-text:#5b36a8;
+
+      --teacher:#fff0f5;
+      --teacher-line:#ec4899;
+      --teacher-text:#a31f5b;
+
+      --shadow:0 12px 30px rgba(30,41,59,.08);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.08), transparent 24%),
+        radial-gradient(circle at top right, rgba(16,185,129,.07), transparent 22%),
+        var(--bg);
+      font-family:Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height:1.62;
+    }
+
+    button, input{font:inherit}
+    a{color:inherit}
+
+    .page{
+      width:min(100%, 980px);
+      margin:0 auto;
+      padding:18px 14px 96px;
+    }
+
+    .hero{
+      color:#fff;
+      background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 48%,#0f766e 100%);
+      border-radius:28px;
+      padding:26px 20px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,.09);
+    }
+    .hero::before{width:150px;height:150px;right:-55px;top:-55px}
+    .hero::after{width:90px;height:90px;left:-35px;bottom:-40px}
+
+    .kicker{
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      opacity:.9;
+      margin-bottom:7px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(1.75rem,7vw,3rem);
+      line-height:1.18;
+      word-break:keep-all;
+    }
+
+    .hero p{
+      margin:12px 0 0;
+      color:rgba(255,255,255,.9);
+      word-break:keep-all;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:9px;
+      margin-top:18px;
+    }
+
+    .hero-stat{
+      padding:11px 12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.12);
+      border-radius:15px;
+    }
+
+    .hero-stat strong{
+      display:block;
+      font-size:1rem;
+    }
+
+    .intro{
+      margin-top:18px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .intro h2,.section-title h2{margin:0;font-size:1.28rem}
+    .intro p{margin:8px 0 0;color:var(--muted)}
+
+    .simple-flow{
+      margin-top:14px;
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:3px 1px 8px;
+      scrollbar-width:none;
+    }
+    .simple-flow::-webkit-scrollbar{display:none}
+
+    .mini-step{
+      flex:0 0 auto;
+      min-width:142px;
+      border-radius:16px;
+      padding:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:.88rem;
+      font-weight:800;
+      box-shadow:0 5px 14px rgba(30,41,59,.05);
+    }
+    .mini-step::after{
+      content:"→";
+      float:right;
+      color:var(--muted);
+    }
+    .mini-step:last-child::after{content:""}
+
+    .legend-wrap{
+      position:sticky;
+      top:0;
+      z-index:30;
+      margin:18px -4px 0;
+      padding:8px 4px;
+      backdrop-filter:blur(12px);
+      background:rgba(246,248,252,.88);
+    }
+
+    .legend{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:2px 0 4px;
+      scrollbar-width:none;
+    }
+    .legend::-webkit-scrollbar{display:none}
+
+    .legend button{
+      flex:0 0 auto;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:999px;
+      padding:9px 13px;
+      font-weight:850;
+      color:var(--muted);
+      cursor:pointer;
+    }
+
+    .legend button.active{
+      color:#fff;
+      background:#334155;
+      border-color:#334155;
+    }
+
+    .dot{
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      margin-right:6px;
+    }
+    .dot.student{background:var(--student-line)}
+    .dot.maker{background:var(--maker-line)}
+    .dot.ai{background:var(--ai-line)}
+    .dot.mixed{background:var(--mixed-line)}
+
+    .section{
+      margin-top:26px;
+    }
+
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .section-title p{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    .flow-list{
+      position:relative;
+    }
+
+    .flow-list::before{
+      content:"";
+      position:absolute;
+      left:24px;
+      top:26px;
+      bottom:26px;
+      width:4px;
+      background:linear-gradient(var(--student-line),var(--ai-line),var(--maker-line),var(--mixed-line));
+      border-radius:999px;
+      opacity:.5;
+    }
+
+    .stage{
+      position:relative;
+      padding-left:60px;
+      margin-bottom:16px;
+    }
+
+    .stage.hidden{display:none}
+
+    .num{
+      position:absolute;
+      left:0;
+      top:15px;
+      width:48px;
+      height:48px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      font-weight:950;
+      background:#fff;
+      border:4px solid var(--line);
+      z-index:2;
+      box-shadow:0 6px 18px rgba(30,41,59,.11);
+    }
+
+    .stage[data-kind="student"] .num{border-color:var(--student-line);color:var(--student-text)}
+    .stage[data-kind="maker"] .num{border-color:var(--maker-line);color:var(--maker-text)}
+    .stage[data-kind="ai"] .num{border-color:var(--ai-line);color:var(--ai-text)}
+    .stage[data-kind="mixed"] .num{border-color:var(--mixed-line);color:var(--mixed-text)}
+
+    .stage-card{
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:1px solid var(--line);
+    }
+
+    .stage[data-kind="student"] .stage-card{background:var(--student);border-color:#f3da8a}
+    .stage[data-kind="maker"] .stage-card{background:var(--maker);border-color:#bfd7fb}
+    .stage[data-kind="ai"] .stage-card{background:var(--ai);border-color:#bcebd8}
+    .stage[data-kind="mixed"] .stage-card{background:var(--mixed);border-color:#d7c8ff}
+
+    .stage-main{
+      padding:17px 16px 14px;
+    }
+
+    .stage-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .stage h3{
+      margin:0;
+      font-size:1.09rem;
+      line-height:1.4;
+      word-break:keep-all;
+    }
+
+    .badge{
+      flex:0 0 auto;
+      border-radius:999px;
+      padding:6px 9px;
+      font-size:.72rem;
+      font-weight:900;
+      background:rgba(255,255,255,.76);
+      border:1px solid rgba(255,255,255,.85);
+      white-space:nowrap;
+    }
+
+    .stage[data-kind="student"] .badge{color:var(--student-text)}
+    .stage[data-kind="maker"] .badge{color:var(--maker-text)}
+    .stage[data-kind="ai"] .badge{color:var(--ai-text)}
+    .stage[data-kind="mixed"] .badge{color:var(--mixed-text)}
+
+    .lead{
+      margin:8px 0 0;
+      color:#475569;
+      font-size:.94rem;
+    }
+
+    details{
+      background:rgba(255,255,255,.65);
+      border-top:1px solid rgba(100,116,139,.18);
+    }
+
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding:12px 16px;
+      font-weight:900;
+      color:#334155;
+    }
+    summary::-webkit-details-marker{display:none}
+
+    .details-body{
+      padding:0 16px 16px;
+      display:grid;
+      gap:10px;
+    }
+
+    .info-box{
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(148,163,184,.3);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .info-box h4{
+      margin:0 0 6px;
+      font-size:.9rem;
+    }
+
+    .info-box ul{
+      margin:0;
+      padding-left:18px;
+      font-size:.91rem;
+    }
+
+    .support-box{
+      border-left:5px solid var(--teacher-line);
+      background:#fff;
+    }
+
+    .support-box h4{color:var(--teacher-text)}
+
+    .ai-rule{
+      margin-top:26px;
+      background:linear-gradient(135deg,#ecfdf5,#eff6ff);
+      border:1px solid #bfdbfe;
+      border-radius:22px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .ai-rule h2{margin:0;font-size:1.25rem}
+    .ai-chain{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:12px 0 2px;
+      scrollbar-width:none;
+    }
+    .ai-chain::-webkit-scrollbar{display:none}
+
+    .ai-chip{
+      flex:0 0 auto;
+      padding:10px 12px;
+      border-radius:13px;
+      background:#fff;
+      border:1px solid #b7e4d2;
+      font-size:.88rem;
+      font-weight:850;
+    }
+
+    .map-note{
+      margin-top:26px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .map-note h2{margin:0;font-size:1.25rem}
+    .map-grid{
+      display:grid;
+      gap:12px;
+      margin-top:12px;
+    }
+    .map-card{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:#fbfdff;
+    }
+    .map-card h3{margin:0 0 6px;font-size:1rem}
+    .map-card p{margin:0;color:var(--muted);font-size:.92rem}
+
+    .closing{
+      margin-top:26px;
+      background:#1e293b;
+      color:#fff;
+      border-radius:22px;
+      padding:19px;
+    }
+    .closing h2{margin:0;font-size:1.25rem}
+    .closing p{margin:10px 0 0;color:#dbeafe}
+
+    .bottom-nav{
+      position:fixed;
+      left:50%;
+      bottom:10px;
+      transform:translateX(-50%);
+      z-index:40;
+      width:min(calc(100% - 20px),680px);
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,255,255,.94);
+      box-shadow:0 18px 38px rgba(15,23,42,.2);
+      backdrop-filter:blur(14px);
+    }
+
+    .bottom-nav a{
+      text-decoration:none;
+      text-align:center;
+      padding:12px 6px;
+      font-size:.8rem;
+      font-weight:900;
+      color:var(--muted);
+    }
+    .bottom-nav a:hover{background:#eff6ff;color:#1d4ed8}
+
+    @media(min-width:720px){
+      .page{padding:30px 24px 100px}
+      .hero-grid{grid-template-columns:repeat(4,1fr)}
+      .details-body{grid-template-columns:repeat(2,1fr)}
+      .map-grid{grid-template-columns:repeat(2,1fr)}
+      .flow-list::before{left:28px}
+      .stage{padding-left:72px}
+      .num{width:56px;height:56px}
+    }
+
+    @media print{
+      .legend-wrap,.bottom-nav{display:none}
+      body{background:#fff}
+      .page{width:100%;max-width:none}
+      .stage-card,.intro,.ai-rule,.map-note{box-shadow:none}
+      details{display:block}
+    }
+  </style>
+<script type="text/javascript" nonce="577162e5385c461cbb01c65adbd" src="//local.adguard.org?ts=1784553816784&amp;type=content-script&amp;dmn=chatgpt.com&amp;url=https%3A%2F%2Fchatgpt.com%2Fbackend-api%2Festuary%2Fcontent%3Fid%3Dfile_0000000049e48209aeac3e69f41040d8%26fn%3D%25EC%25A7%2580%25EC%259B%2590%25EB%258B%25A8%25EC%259A%25A9_%25ED%2595%25B4%25EC%25BB%25A4%25ED%2586%25A4_%25EC%25A0%2584%25EC%25B2%25B4%25ED%259D%2590%25EB%25A6%2584_%25EB%25AA%25A8%25EB%25B0%2594%25EC%259D%25BC.html%26cd%3Dattachment%26ts%3D495709%26p%3Dfs%26cid%3D1%26sig%3D91495ca118f12a8ed158fdde5b28b19a8385ec8c92540d420c731eaa216c9aa2%26v%3D0&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=0"></script></head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="kicker">지원단 교사용 · 모바일 우선 안내</div>
+      <h1>공공데이터 해커톤 전체 흐름</h1>
+      <p>
+        학생들이 문제를 정의한 뒤, 데이터를 정리하고, 제작기로 기본 웹앱을 만든 다음,
+        생성형 AI와 함께 수정·확장하는 과정을 단계별로 보여 줍니다.
+      </p>
+      <div class="hero-grid">
+        <div class="hero-stat"><strong>1단계</strong><span>문제 정의</span></div>
+        <div class="hero-stat"><strong>2단계</strong><span>데이터 준비</span></div>
+        <div class="hero-stat"><strong>3단계</strong><span>기본 틀 생성</span></div>
+        <div class="hero-stat"><strong>4단계</strong><span>수정·검증·발표</span></div>
+      </div>
+    </section>
+
+    <section class="intro" id="overview">
+      <h2>가장 먼저 이해할 핵심</h2>
+      <p>
+        제작기는 완성품을 대신 만드는 도구가 아닙니다. 학생이 백지에서 시작하지 않도록
+        작동하는 기본 틀을 만들고, 이후에는 생성형 AI와 대화하면서 팀별 아이디어를 반영합니다.
+      </p>
+
+      <div class="simple-flow" aria-label="간단 흐름">
+        <div class="mini-step" style="background:var(--student)">문제 정의</div>
+        <div class="mini-step" style="background:var(--ai)">AI와 전처리</div>
+        <div class="mini-step" style="background:var(--maker)">제작기 사용</div>
+        <div class="mini-step" style="background:var(--mixed)">Codex로 확장</div>
+        <div class="mini-step" style="background:#fff">검증·발표</div>
+      </div>
+    </section>
+
+    <div class="legend-wrap">
+      <div class="legend" aria-label="단계 종류 필터">
+        <button class="active" data-filter="all">전체 보기</button>
+        <button data-filter="student"><span class="dot student"></span>학생 직접 활동</button>
+        <button data-filter="ai"><span class="dot ai"></span>생성형 AI 사용</button>
+        <button data-filter="maker"><span class="dot maker"></span>제작기 사용</button>
+        <button data-filter="mixed"><span class="dot mixed"></span>AI+코딩</button>
+      </div>
+    </div>
+
+    <section class="section" id="flow">
+      <div class="section-title">
+        <div>
+          <h2>전체 과정 20단계</h2>
+          <p>블록 색으로 학생 활동, AI 사용, 제작기 사용을 구분했습니다.</p>
+        </div>
+      </div>
+
+      <div class="flow-list">
+
+        <article class="stage" data-kind="student">
+          <div class="num">1</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>문제 정의</h3>
+                <span class="badge">학생 직접 활동</span>
+              </div>
+              <p class="lead">팀 토론으로 해결할 지역 문제, 대상 사용자, 문제 상황과 해결 아이디어를 정합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>누구의 어떤 불편을 해결할지 구체화</li><li>활용할 데이터와 해결 아이디어 정리</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>주제가 너무 넓지 않은지 질문</li><li>문제와 데이터가 실제로 연결되는지 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="maker">
+          <div class="num">2</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>프로젝트 정보 입력</h3>
+                <span class="badge">제작기 사용</span>
+              </div>
+              <p class="lead">첫날 문제 정의서의 핵심 내용을 제작기 첫 화면에 옮겨 적습니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>문제, 사용자, 데이터, 핵심 기능 작성</li><li>사용자가 무엇을 할 수 있어야 하는지 설명</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>제목만 적지 않도록 도움</li><li>문제-데이터-기능의 관계를 설명하게 함</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="maker">
+          <div class="num">3</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>전처리 가이드 MD 생성</h3>
+                <span class="badge">제작기 사용</span>
+              </div>
+              <p class="lead">프로젝트 설명, 데이터 준비 원칙, 지도 조건, AI 대화 지침이 들어 있는 문서를 받습니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>MD를 내려받고 내용 확인</li><li>프로젝트 설명이 자신들의 의도와 맞는지 확인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>학생이 입력하지 않은 내용이 들어가지 않았는지 확인</li><li>MD를 어디에 올려야 하는지 안내</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="ai">
+          <div class="num">4</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>원본 CSV와 MD를 AI에 제공</h3>
+                <span class="badge">생성형 AI 사용</span>
+              </div>
+              <p class="lead">생성형 AI가 프로젝트 목적과 CSV 구조를 먼저 읽고 설명합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>원본 CSV, 출처, 기준 날짜 확인</li><li>개인정보 포함 여부 확인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>AI가 바로 파일을 바꾸지 않도록 확인</li><li>열 이름, 빈칸, 중복, 단위 문제를 살펴보게 함</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="ai">
+          <div class="num">5</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>전처리 방법 협의</h3>
+                <span class="badge">생성형 AI 사용</span>
+              </div>
+              <p class="lead">AI가 가능한 방법을 설명하고, 학생에게 필요한 질문을 한 뒤 전처리 계획을 만듭니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>유지·삭제·추가할 열 결정</li><li>집계와 계산 방식 선택</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>AI가 학생 대신 임의 결정하지 않는지 확인</li><li>학생이 전처리 이유를 설명하도록 질문</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="ai">
+          <div class="num">6</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>지도용 데이터 준비</h3>
+                <span class="badge">생성형 AI 사용</span>
+              </div>
+              <p class="lead">장소 지도는 위도·경도, 행정동 지도는 안산시 행정동 이름과 숫자 값이 필요합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>점 지도인지 행정동 지도인지 결정</li><li>좌표 또는 행정동 명칭 준비</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>법정동과 행정동을 혼동하지 않도록 도움</li><li>안산시 밖 지역이나 잘못된 동 이름 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="ai">
+          <div class="num">7</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>전처리 계획 승인</h3>
+                <span class="badge">생성형 AI 사용</span>
+              </div>
+              <p class="lead">AI가 최종 계획을 보여 주고 “이대로 진행할까요?”라고 확인한 뒤에만 작업합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>계산식과 집계 방법을 읽고 이해</li><li>모르는 부분을 질문한 뒤 승인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>학생이 읽지 않고 바로 승인하지 않도록 지도</li><li>지도용 열과 계산 기준의 타당성 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="ai">
+          <div class="num">8</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>전처리 CSV 생성</h3>
+                <span class="badge">생성형 AI 사용</span>
+              </div>
+              <p class="lead">원본을 보존한 채 전처리 CSV, 열 설명표, 전처리 기록을 별도로 받습니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>원본과 전처리 파일을 구분</li><li>일부 값을 직접 비교해 정확성 확인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>원본 덮어쓰기 여부 확인</li><li>AI가 없는 값을 지어내지 않았는지 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="maker">
+          <div class="num">9</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>전처리 CSV 업로드</h3>
+                <span class="badge">제작기 사용</span>
+              </div>
+              <p class="lead">전처리가 끝난 CSV를 제작기에 업로드하고 열 이름과 샘플 값을 확인합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>원본이 아니라 전처리 파일 업로드</li><li>열 이름과 숫자 형식 확인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>잘못된 파일 업로드 여부 확인</li><li>CSV가 깨져 보이지 않는지 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="maker">
+          <div class="num">10</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>컴포넌트 선택</h3>
+                <span class="badge">제작기 사용</span>
+              </div>
+              <p class="lead">카드, 차트, 지도, 순위, 게이지, 가중치, 시뮬레이션 중 필요한 기능을 고릅니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>많이 고르기보다 필요한 기능 선택</li><li>각 기능이 어떤 판단을 돕는지 설명</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>불필요한 기능을 줄이도록 도움</li><li>팀별 핵심 기능이 드러나게 지도</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="maker">
+          <div class="num">11</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>열 연결과 계산 설정</h3>
+                <span class="badge">제작기 사용</span>
+              </div>
+              <p class="lead">각 컴포넌트에 CSV 열을 연결하고 합계, 평균, 순위 등의 계산 방식을 정합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>어떤 열을 어디에 연결했는지 이해</li><li>계산 기준과 단위 확인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>지도·순위·차트 기준이 같은지 확인</li><li>큰 값이 좋은지 작은 값이 좋은지 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="maker">
+          <div class="num">12</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>기본 프로젝트 ZIP 생성</h3>
+                <span class="badge">제작기 사용</span>
+              </div>
+              <p class="lead">실행 가능한 HTML·CSS·JavaScript와 안내 문서가 포함된 프로젝트를 내려받습니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>ZIP 다운로드와 압축 해제</li><li>프로젝트 폴더 위치 기억</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>다운로드 위치와 압축 해제 지원</li><li>파일 누락이나 차단 여부 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="mixed">
+          <div class="num">13</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>프로젝트 문서 읽기</h3>
+                <span class="badge">AI+코딩 준비</span>
+              </div>
+              <p class="lead">바로 코드를 수정하지 않고 README와 프로젝트 설명 문서부터 확인합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>README와 PROJECT_BRIEF 확인</li><li>Codex에게 문서부터 읽도록 요청</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>학생이 바로 “만들어 줘”라고 하지 않도록 안내</li><li>문서 역할을 간단히 설명</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="mixed">
+          <div class="num">14</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>Codex와 VS Code에서 폴더 열기</h3>
+                <span class="badge">AI+코딩</span>
+              </div>
+              <p class="lead">같은 프로젝트 폴더를 Codex와 VS Code에서 열어 개발 준비를 마칩니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>압축 해제한 폴더를 정확히 선택</li><li>두 프로그램에서 같은 폴더인지 확인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>잘못된 폴더를 연 경우 바로잡기</li><li>VS Code, Korean Pack, Live Server 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="mixed">
+          <div class="num">15</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>Codex와 수정 계획 협의</h3>
+                <span class="badge">AI+코딩</span>
+              </div>
+              <p class="lead">Codex가 질문하고, 학생이 답한 뒤 최종 작업안을 확인합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>사용자가 무엇을 누르는지 설명</li><li>무엇이 어떻게 바뀌어야 하는지 설명</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>“예쁘게” 대신 화면과 행동 중심으로 설명하게 함</li><li>한 번에 한 기능씩 나누도록 도움</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="mixed">
+          <div class="num">16</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>학생 승인 후 구현</h3>
+                <span class="badge">AI+코딩</span>
+              </div>
+              <p class="lead">학생이 작업안을 승인한 뒤 Codex가 코드를 수정합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>승인 범위 확인</li><li>수정 후 볼 부분 확인</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>AI가 임의로 큰 수정을 하지 않는지 확인</li><li>학생 아이디어가 실제 기능에 반영되는지 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="student">
+          <div class="num">17</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>Live Server 실행</h3>
+                <span class="badge">학생 직접 확인</span>
+              </div>
+              <p class="lead">VS Code에서 웹앱을 실행하고 버튼, 차트, 지도, 계산이 실제로 작동하는지 확인합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>직접 클릭하고 결과 확인</li><li>오류가 나면 상황을 기록</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>Live Server 실행 지원</li><li>브라우저 새로고침과 오류 확인 방법 안내</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="student">
+          <div class="num">18</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>데이터와 기능 검증</h3>
+                <span class="badge">학생 직접 확인</span>
+              </div>
+              <p class="lead">화면이 보이는 것에서 끝내지 않고 원본 데이터와 계산 결과를 비교합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>일부 값을 직접 대조</li><li>지도·순위·차트 기준 비교</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>AI 결과를 그대로 믿지 않도록 지도</li><li>계산식과 단위 오류를 확인하게 함</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="mixed">
+          <div class="num">19</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>팀별 개선</h3>
+                <span class="badge">AI 활용 가능</span>
+              </div>
+              <p class="lead">기본 틀에서 벗어나 팀의 문제와 해결 방식이 드러나도록 기능과 화면을 개선합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>팀만의 핵심 기능 추가</li><li>사용자 흐름과 설명 문구 다듬기</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>결과물이 비슷해지지 않도록 차이를 만들게 함</li><li>디자인보다 문제 해결 기능을 먼저 보게 함</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="stage" data-kind="student">
+          <div class="num">20</div>
+          <div class="stage-card">
+            <div class="stage-main">
+              <div class="stage-head">
+                <h3>발표 준비</h3>
+                <span class="badge">학생 직접 활동</span>
+              </div>
+              <p class="lead">문제 정의, 데이터 근거, 해결 기능, 시연, 한계를 연결해 발표합니다.</p>
+            </div>
+            <details>
+              <summary>학생과 지원단이 할 일 보기</summary>
+              <div class="details-body">
+                <div class="info-box">
+                  <h4>학생이 해야 할 일</h4>
+                  <ul><li>문제-데이터-기능 흐름으로 발표</li><li>직접 수정한 부분과 배운 점 설명</li></ul>
+                </div>
+                <div class="info-box support-box">
+                  <h4>지원단이 도울 부분</h4>
+                  <ul><li>기능 나열에 그치지 않도록 안내</li><li>발표용 PC에서 실제 동작 여부 확인</li></ul>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="ai-rule" id="ai-rule">
+      <h2>생성형 AI를 쓰는 단계의 공통 규칙</h2>
+      <p>AI가 바로 처리하는 것이 아니라, 학생과 대화하면서 계획을 만든 뒤 승인받고 진행합니다.</p>
+      <div class="ai-chain">
+        <div class="ai-chip">설명</div>
+        <div class="ai-chip">질문</div>
+        <div class="ai-chip">학생 답변</div>
+        <div class="ai-chip">계획 정리</div>
+        <div class="ai-chip">학생 승인</div>
+        <div class="ai-chip">작업 진행</div>
+        <div class="ai-chip">결과 확인</div>
+      </div>
+    </section>
+
+    <section class="map-note" id="map">
+      <h2>안산시 지도 사용 시 빠른 확인</h2>
+      <div class="map-grid">
+        <article class="map-card">
+          <h3>장소 마커 지도</h3>
+          <p>가게명이나 경찰서명만으로는 위치를 알 수 없습니다. 장소명, 위도, 경도가 필요합니다.</p>
+        </article>
+        <article class="map-card">
+          <h3>안산시 행정동 지도</h3>
+          <p>안산시 행정동 이름과 표시할 숫자가 필요합니다. 법정동과 행정동은 같지 않을 수 있습니다.</p>
+        </article>
+        <article class="map-card">
+          <h3>좌표가 몇 개 안 될 때</h3>
+          <p>지도 서비스에서 위치를 직접 확인해 위도·경도를 추가할 수 있습니다.</p>
+        </article>
+        <article class="map-card">
+          <h3>지도 준비가 어려울 때</h3>
+          <p>행정동별 개수로 집계하거나 순위표·막대그래프로 바꾸는 방법도 있습니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="closing">
+      <h2>지원단이 기억할 한 문장</h2>
+      <p>
+        학생 대신 답을 만들어 주는 것이 아니라, 학생이 문제와 데이터와 기능을 연결하고
+        생성형 AI에게 더 좋은 질문을 할 수 있도록 단계별로 도와주는 것이 핵심입니다.
+      </p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="빠른 이동">
+    <a href="#overview">핵심 요약</a>
+    <a href="#flow">전체 흐름</a>
+    <a href="#map">지도 확인</a>
+  </nav>
+
+  <script>
+    const buttons = document.querySelectorAll('.legend button');
+    const stages = document.querySelectorAll('.stage');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        buttons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        const filter = button.dataset.filter;
+        stages.forEach(stage => {
+          const show = filter === 'all' || stage.dataset.kind === filter;
+          stage.classList.toggle('hidden', !show);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
