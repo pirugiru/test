@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>토론 진행 타이머</title>
+<style>
+:root{--bg:#0b1020;--panel:#151d35;--text:#f7f9ff;--muted:#aab5d0;--accent:#5e86ff;--warn:#ffbd3d;--danger:#ff5e68;--ok:#59d5a4;--line:rgba(255,255,255,.11)}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Pretendard,"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text)}body{display:grid;place-items:center}.screen{width:min(100vw,calc(100vh*16/9));height:min(100vh,calc(100vw*9/16));aspect-ratio:16/9;padding:2%;display:grid;grid-template-rows:auto 1fr auto;gap:2%;background:radial-gradient(circle at top left,rgba(94,134,255,.18),transparent 32%),var(--bg)}header{display:flex;justify-content:space-between;align-items:center}.kicker{color:#89a7ff;font-size:clamp(14px,1.2vw,22px);font-weight:900}.title{margin:.15em 0 0;font-size:clamp(28px,2.8vw,54px);line-height:1}.fs{border:1px solid var(--line);background:var(--panel);color:#fff;border-radius:14px;padding:.8em 1em;font:inherit;font-weight:900;cursor:pointer}.main{display:grid;grid-template-columns:minmax(0,2.55fr) minmax(290px,.85fr);gap:2%;min-height:0}.card{background:linear-gradient(180deg,#1b2543,#141c33);border:1px solid var(--line);border-radius:28px;box-shadow:0 20px 55px rgba(0,0,0,.25)}.timer{padding:3%;display:grid;grid-template-rows:auto 1fr auto;transition:background .25s ease,border-color .25s ease}
+.card.timer.team-a{background:linear-gradient(145deg,#2f6fed,#17397f)!important;border-color:#8fb0ff}
+.card.timer.team-b{background:linear-gradient(145deg,#d84f5b,#7e2730)!important;border-color:#ff9aa2}
+.card.timer.team-c{background:linear-gradient(145deg,#1f9d72,#0d5a40)!important;border-color:#83e2bd}
+.card.timer.team-d{background:linear-gradient(145deg,#8b5cf6,#4b2a98)!important;border-color:#c4a8ff}
+.card.timer.all-teams{background:linear-gradient(145deg,#3c4867,#202a43)!important;border-color:#7180a8}.top{display:flex;justify-content:space-between;align-items:flex-start}.label{color:var(--muted);font-size:clamp(14px,1.2vw,22px);font-weight:800}.team{font-size:clamp(38px,5vw,96px);font-weight:1000;line-height:1;margin-top:.08em}.count{color:var(--muted);font-weight:900;font-size:clamp(14px,1.05vw,19px)}.time{align-self:center;justify-self:center;font-variant-numeric:tabular-nums;font-size:clamp(96px,15vw,285px);font-weight:1000;line-height:.82;letter-spacing:-.07em}.time.warning{color:var(--warn)}.time.danger{color:var(--danger)}.status{text-align:center;color:var(--muted);font-weight:900;font-size:clamp(14px,1.2vw,22px)}.side{padding:6%;display:grid;grid-template-rows:auto auto auto 1fr;gap:5%}.side h3{margin:0 0 .6em;color:var(--muted);font-size:clamp(13px,1vw,18px)}.next{font-size:clamp(30px,3.2vw,62px);font-weight:1000;line-height:1}.seq{display:flex;flex-wrap:wrap;gap:.55em}.pill{padding:.45em .7em;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--muted);font-weight:900}.pill.current{background:var(--accent);color:#fff}.pill.done{opacity:.45;text-decoration:line-through}.duration-setting{display:flex;align-items:center;gap:.55em;flex-wrap:wrap}
+.time-editor{display:grid;grid-template-columns:70px auto 70px auto auto;align-items:center;gap:.45em}
+.time-editor input{width:70px;min-height:38px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.08);color:#fff;text-align:center;font:inherit;font-weight:900}
+.time-editor span{color:var(--muted);font-weight:900}
+.apply-time{min-height:38px;padding:0 .9em;border:0;border-radius:10px;background:var(--warn);color:#172033;font:inherit;font-weight:900;cursor:pointer}
+.duration-setting.show{display:flex}
+.duration-setting .duration-label{color:var(--muted);font-weight:900;margin-right:.2em}
+.duration-btn{padding:.55em .9em;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:#fff;font:inherit;font-weight:900;cursor:pointer}
+.duration-btn.active{background:var(--warn);color:#14203a;border-color:transparent}
+.notice{align-self:end;padding:1em;border-radius:16px;background:rgba(255,189,61,.09);border:1px solid rgba(255,189,61,.28);color:#ffd980;font-weight:800;line-height:1.45}.controls{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:1%}.controls button,.controls select{min-height:clamp(44px,4.2vw,66px);border-radius:16px;border:1px solid var(--line);font:inherit;font-weight:900;font-size:clamp(13px,1vw,18px)}button{cursor:pointer;background:var(--panel);color:#fff}.primary{background:var(--accent)!important}.green{background:var(--ok)!important;color:#08251a!important}.red{background:rgba(255,94,104,.15)!important;color:#ff9ba3!important}select{background:var(--panel);color:#fff;padding:0 1em}.flash{position:fixed;inset:0;pointer-events:none;background:rgba(255,189,61,.22);opacity:0}.flash.show{animation:flash .7s ease 2}@keyframes flash{50%{opacity:1}}@media(max-aspect-ratio:4/3){.screen{width:100vw;height:100vh;aspect-ratio:auto}}
+
+.time.overtime{color:#fff!important;text-shadow:0 0 18px rgba(255,255,255,.8),0 0 44px rgba(255,92,103,.95);animation:overtimePulse 1s ease-in-out infinite}
+.timer-card.overtime-card{border:4px solid var(--danger)!important;box-shadow:0 0 0 8px rgba(255,92,103,.18),0 20px 60px rgba(0,0,0,.3)!important;animation:overtimeBorder 1s ease-in-out infinite}
+.overtime-label{display:none;justify-content:center;align-items:center;margin-top:.35em;color:#ffd7da;font-size:clamp(15px,1.25vw,23px);font-weight:1000;letter-spacing:.08em}
+.overtime-label.show{display:flex}
+@keyframes overtimePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.035);opacity:.82}}
+@keyframes overtimeBorder{0%,100%{filter:saturate(1)}50%{filter:saturate(1.5) brightness(1.08)}}
+
+
+/* 모바일 세로 화면 최적화 */
+@media (max-width: 760px), (max-aspect-ratio: 3/4) {
+  html, body {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  body {
+    display: block;
+    background: var(--bg);
+  }
+
+  .screen {
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    aspect-ratio: auto;
+    padding: 14px;
+    grid-template-rows: auto auto auto;
+    gap: 14px;
+  }
+
+  header {
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+
+  .phase-kicker {
+    font-size: 13px;
+  }
+
+  .phase-title {
+    font-size: clamp(22px, 7vw, 34px);
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .fullscreen-btn {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .main {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .timer-card,
+  .side-card {
+    border-radius: 20px;
+  }
+
+  .timer-card {
+    min-height: 420px;
+    padding: 22px 18px;
+  }
+
+  .team-name {
+    font-size: clamp(42px, 15vw, 72px);
+  }
+
+  .round-progress {
+    font-size: 14px;
+  }
+
+  .time {
+    font-size: clamp(88px, 28vw, 145px);
+    line-height: .92;
+    letter-spacing: -.07em;
+  }
+
+  .status {
+    font-size: 16px;
+  }
+
+  .side-card {
+    padding: 20px 18px;
+    gap: 18px;
+  }
+
+  .next-team {
+    font-size: clamp(32px, 11vw, 54px);
+  }
+
+  .sequence {
+    gap: 8px;
+  }
+
+  .seq-item,
+  .pill {
+    font-size: 14px;
+    padding: 9px 12px;
+  }
+
+  .duration-setting {
+    display: block;
+  }
+
+  .duration-label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .time-editor {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .time-editor input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 18px;
+  }
+
+  .apply-time {
+    grid-column: 1 / -1;
+    min-height: 48px;
+    margin-top: 2px;
+  }
+
+  .notice {
+    font-size: 14px;
+  }
+
+  .controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--bg) 78%, transparent);
+  }
+
+  .control-btn,
+  .select {
+    width: 100%;
+    min-height: 52px;
+    font-size: 14px;
+  }
+
+  .controls .select {
+    grid-column: 1 / -1;
+  }
+
+  .overtime-label {
+    font-size: 17px;
+  }
+}
+
+/* 모바일 가로 화면에서는 타이머를 크게 유지하면서 버튼만 정리 */
+@media (max-height: 560px) and (orientation: landscape) {
+  html, body {
+    overflow-y: auto;
+  }
+
+  .screen {
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    aspect-ratio: auto;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .main {
+    grid-template-columns: 1.35fr .75fr;
+  }
+
+  .timer-card {
+    min-height: 300px;
+    padding: 18px;
+  }
+
+  .time {
+    font-size: clamp(90px, 18vw, 155px);
+  }
+
+  .side-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .controls {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
+  }
+
+  .control-btn,
+  .select {
+    min-height: 44px;
+    font-size: 12px;
+  }
+}
+
+
+.side{padding:5%;display:flex!important;flex-direction:column;justify-content:space-between;gap:4%}
+.side-top{display:grid;gap:clamp(24px,3.5vh,44px)}
+.side-bottom{display:grid;gap:12px;margin-top:auto}
+.next-section{padding-bottom:clamp(16px,2.4vh,28px);border-bottom:1px solid var(--line)}
+.team-indicator{display:flex;align-items:flex-start;width:100%;margin-top:12px}
+.indicator-item{position:relative;flex:1;min-width:0;display:grid;justify-items:center;gap:8px;color:var(--muted);font-size:clamp(12px,.9vw,17px);font-weight:900}
+.indicator-item:not(:last-child)::after{content:"";position:absolute;top:14px;left:calc(50% + 16px);right:calc(-50% + 16px);height:3px;border-radius:999px;background:rgba(255,255,255,.15)}
+.indicator-dot{position:relative;z-index:1;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;border:3px solid rgba(255,255,255,.22);background:#26314d;color:#d7def2;font-size:12px;transition:.2s}
+.indicator-item.done .indicator-dot{background:var(--ok);border-color:var(--ok);color:#08251a}
+.indicator-item.done:not(:last-child)::after{background:var(--ok)}
+.indicator-item.current{color:#fff}
+.indicator-item.current .indicator-dot{transform:scale(1.18);background:var(--accent);border-color:#b8c9ff;color:#fff;box-shadow:0 0 0 7px rgba(95,134,255,.16)}
+.indicator-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.current-setting{padding:12px 14px;border:1px solid rgba(255,190,61,.25);border-radius:14px;background:rgba(255,190,61,.08);color:#ffd982;font-size:clamp(13px,.95vw,17px);font-weight:900}
+.duration-setting{display:block!important;padding-top:2px}
+.duration-label{display:block;margin-bottom:8px;color:var(--muted);font-size:clamp(12px,.9vw,16px);font-weight:900}
+.time-editor{grid-template-columns:minmax(52px,1fr) auto minmax(52px,1fr) auto!important}
+.time-editor .apply-time{grid-column:1/-1;width:100%;margin-top:4px}
+.notice{margin-top:0}
+@media(max-width:760px),(max-aspect-ratio:3/4){
+  .side{padding:20px 18px}
+  .side-top{gap:24px}
+  .side-bottom{margin-top:10px}
+  .indicator-dot{width:28px;height:28px}
+  .indicator-item:not(:last-child)::after{top:13px;left:calc(50% + 15px);right:calc(-50% + 15px)}
+  .indicator-name{font-size:13px}
+}
+
+
+/* 타이머 숫자를 카드의 가로·세로 중앙에 배치 */
+.timer > div:nth-child(2) {
+  align-self: stretch;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  min-height: 0;
+}
+
+.timer .time {
+  align-self: auto;
+  justify-self: auto;
+}
+
+/* 팀 진행 순서 가독성 확대 */
+.side-top section:nth-child(2) h3 {
+  font-size: clamp(17px, 1.28vw, 24px);
+  color: #d7def2;
+  margin-bottom: .8em;
+}
+
+.indicator-item {
+  font-size: clamp(15px, 1.08vw, 21px);
+  gap: 11px;
+}
+
+.indicator-name {
+  font-size: clamp(15px, 1.08vw, 21px);
+  font-weight: 1000;
+}
+
+.indicator-dot {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.indicator-item:not(:last-child)::after {
+  top: 17px;
+  left: calc(50% + 19px);
+  right: calc(-50% + 19px);
+  height: 4px;
+}
+
+@media (max-width: 760px), (max-aspect-ratio: 3/4) {
+  .timer > div:nth-child(2) {
+    min-height: 230px;
+  }
+
+  .side-top section:nth-child(2) h3 {
+    font-size: 18px;
+  }
+
+  .indicator-name {
+    font-size: 15px;
+  }
+
+  .indicator-dot {
+    width: 32px;
+    height: 32px;
+  }
+
+  .indicator-item:not(:last-child)::after {
+    top: 15px;
+    left: calc(50% + 17px);
+    right: calc(-50% + 17px);
+  }
+}
+
+
+/* 타이머를 카드 전체 기준으로 정확히 정중앙 배치 */
+.timer {
+  position: relative;
+}
+
+.timer > div:nth-child(2) {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.timer .time {
+  margin: 0;
+  transform: translateY(0);
+}
+
+/* 상단 팀 정보와 하단 상태는 중앙 타이머 위에 독립적으로 배치 */
+.timer .team-row {
+  position: relative;
+  z-index: 2;
+  align-self: start;
+}
+
+.timer .status {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+}
+
+/* 초과 표시도 타이머 바로 아래에 붙여서 함께 중앙 정렬 */
+.timer > div:nth-child(2) .overtime-label {
+  margin-top: 14px;
+}
+
+@media (max-width: 760px), (max-aspect-ratio: 3/4) {
+  .timer > div:nth-child(2) {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+  }
+}
+
+</style>
+</head>
+<body>
+<div class="screen">
+<header><div><div class="kicker" id="kicker"></div><h1 class="title" id="title"></h1></div><button class="fs" id="fs">⛶ 전체 화면</button></header>
+<section class="main">
+<div class="card timer" id="timerCard"><div class="top"><div><div class="label" id="label"></div><div class="team" id="team"></div></div><div class="count" id="count"></div></div><div><div class="time" id="time">03:00</div><div class="overtime-label" id="overtimeLabel">시간 초과</div></div><div class="status" id="status">준비됨</div></div>
+<aside class="card side">
+<div class="side-top">
+  <section class="next-section">
+    <h3>다음 순서</h3>
+    <div class="next" id="next"></div>
+  </section>
+
+  <section>
+    <h3>팀 진행 순서</h3>
+    <div class="team-indicator" id="seq"></div>
+  </section>
+</div>
+
+<div class="side-bottom">
+  <div class="current-setting" id="currentSetting">현재 설정 3분</div>
+
+  <section class="duration-setting" id="durationSetting">
+    <span class="duration-label">현재 단계 시간 수정</span>
+    <div class="time-editor">
+      <input id="minuteInput" type="number" min="0" max="99" value="3" aria-label="분">
+      <span>분</span>
+      <input id="secondInput" type="number" min="0" max="59" value="0" aria-label="초">
+      <span>초</span>
+      <button class="apply-time" id="applyTime" type="button">시간 적용</button>
+    </div>
+  </section>
+
+  <div class="notice" id="notice"></div>
+</div>
+</aside>
+</section>
+<section class="controls">
+      <button class="control-btn danger" id="goPrev">← 이전 순서</button>
+      <button class="control-btn" id="reset">↺ 초기화</button>
+      <button class="control-btn primary" id="start">▶ 시작</button>
+      <button class="control-btn next" id="goNext">다음 순서 →</button>
+      <select class="select" id="phase" aria-label="단계 선택"></select>
+    </section>
+</div><div class="flash" id="flash"></div>
+<script>
+const phases=[
+{t:'입론 발표',k:'1단계',l:'현재 발표',d:180,o:['A팀','B팀','C팀','D팀'],n:'종료 30초 전 알림'},
+{t:'주도권 토론 준비 협의',k:'2단계',l:'현재 활동',d:180,o:['전체 팀'],n:'입론 정리와 질문·답변 준비'},
+{t:'1차 주도권 토론',k:'3단계',l:'주도 팀',d:180,o:['B팀','C팀','D팀','A팀'],n:'종료 30초 전 알림'},
+{t:'2차 주도권 토론 준비 협의',k:'4단계',l:'현재 활동',d:180,o:['전체 팀'],n:'2차 토론 질문과 답변 준비'},
+{t:'2차 주도권 토론',k:'5단계',l:'주도 팀',d:180,o:['C팀','D팀','A팀','B팀'],n:'종료 30초 전 알림'},
+{t:'최종 발언 준비',k:'6단계',l:'현재 활동',d:180,o:['전체 팀'],n:'최종 발언 준비'},
+{t:'최종 발언',k:'7단계',l:'현재 발표',d:120,o:['D팀','A팀','B팀','C팀'],n:'종료 30초 전 알림'}];
+
+const savedDurations=phases.map(x=>x.d);
+let p=0,i=0,timer=null,running=false,warned=false,left=savedDurations[0],overtime=0,isOvertime=false;
+const $=x=>document.getElementById(x);
+
+phases.forEach((x,j)=>$('phase').insertAdjacentHTML('beforeend',`<option value="${j}">${j+1}. ${x.t}</option>`));
+
+function currentDuration(){return savedDurations[p];}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function durationText(s){const m=Math.floor(s/60),sec=s%60;return m&&sec?`${m}분 ${sec}초`:m?`${m}분`:`${sec}초`;}
+function applyTeamColor(team){
+  const card=$('timerCard');
+  card.classList.remove('team-a','team-b','team-c','team-d','all-teams');
+  const map={'A팀':'team-a','B팀':'team-b','C팀':'team-c','D팀':'team-d'};
+  card.classList.add(map[team]||'all-teams');
+}
+function syncInputs(){
+  $('minuteInput').value=Math.floor(currentDuration()/60);
+  $('secondInput').value=currentDuration()%60;
+}
+function render(){
+  const x=phases[p],team=x.o[i];
+  applyTeamColor(team);
+  $('kicker').textContent=x.k;
+  $('title').textContent=x.t;
+  $('label').textContent=x.l;
+  $('team').textContent=team;
+  $('count').textContent=`${i+1} / ${x.o.length}`;
+  $('time').textContent=isOvertime?`+${fmt(overtime)}`:fmt(left);
+  $('notice').textContent=x.n;
+  $('phase').value=p;
+  $('next').textContent=i<x.o.length-1?x.o[i+1]:p<phases.length-1?'다음: '+phases[p+1].t:'전체 종료';
+  $('seq').innerHTML=x.o.map((n,j)=>{
+    const state=j<i?'done':j===i?'current':'';
+    const mark=j<i?'✓':String(j+1);
+    return `<div class="indicator-item ${state}">
+      <span class="indicator-dot">${mark}</span>
+      <span class="indicator-name">${n}</span>
+    </div>`;
+  }).join('');
+  $('currentSetting').textContent=`현재 설정 ${durationText(currentDuration())}`;
+  $('time').className='time';
+  if(isOvertime){
+    $('time').classList.add('overtime');
+    $('timerCard').classList.add('overtime-card');
+    $('overtimeLabel').classList.add('show');
+  }else{
+    if(left<=10)$('time').classList.add('danger');
+    else if(left<=30)$('time').classList.add('warning');
+    $('timerCard').classList.remove('overtime-card');
+    $('overtimeLabel').classList.remove('show');
+  }
+}
+function beep(f=880,d=.25,c=1){
+  try{
+    const A=window.AudioContext||window.webkitAudioContext,ctx=new A();
+    for(let j=0;j<c;j++){
+      const o=ctx.createOscillator(),g=ctx.createGain(),s=ctx.currentTime+j*.35;
+      o.frequency.value=f;o.connect(g);g.connect(ctx.destination);
+      g.gain.setValueAtTime(.18,s);g.gain.exponentialRampToValueAtTime(.001,s+d);
+      o.start(s);o.stop(s+d);
+    }
+  }catch(e){}
+}
+function pause(){
+  running=false;clearInterval(timer);timer=null;$('start').textContent='▶ 계속';
+  $('status').textContent=isOvertime?'초과 시간 일시정지':'일시정지';
+}
+function start(){
+  if(running)return;
+  running=true;$('start').textContent='Ⅱ 일시정지';$('status').textContent=isOvertime?'시간 초과 진행 중':'진행 중';
+  timer=setInterval(()=>{
+    if(!isOvertime){
+      if(left>0)left--;
+      if(left===30&&!warned){
+        warned=true;beep(900,.25,2);
+        $('flash').classList.remove('show');void $('flash').offsetWidth;$('flash').classList.add('show');
+        $('status').textContent='30초 남았습니다';
+      }
+      if(left===0){
+        isOvertime=true;overtime=0;beep(520,.5,3);$('status').textContent='시간 초과';
+      }
+    }else{
+      overtime++;$('status').textContent='시간 초과 진행 중';
+    }
+    render();
+  },1000);
+}
+function prepare(){
+  pause();left=currentDuration();overtime=0;isOvertime=false;warned=false;
+  $('start').textContent='▶ 시작';$('status').textContent='준비됨';syncInputs();render();
+}
+function next(){
+  pause();
+  if(i<phases[p].o.length-1)i++;
+  else if(p<phases.length-1){p++;i=0;}
+  prepare();
+}
+function prev(){
+  pause();
+  if(i>0)i--;
+  else if(p>0){p--;i=phases[p].o.length-1;}
+  prepare();
+}
+function applyCustomTime(){
+  const m=Math.max(0,Number($('minuteInput').value)||0);
+  const s=Math.max(0,Math.min(59,Number($('secondInput').value)||0));
+  const total=m*60+s;
+  if(total<1){alert('시간은 1초 이상으로 설정해주세요.');return;}
+  savedDurations[p]=total;pause();left=total;overtime=0;isOvertime=false;warned=false;
+  $('start').textContent='▶ 시작';$('status').textContent='시간 설정 완료';syncInputs();render();
+}
+$('applyTime').onclick=applyCustomTime;
+$('minuteInput').onkeydown=e=>{if(e.key==='Enter')applyCustomTime();};
+$('secondInput').onkeydown=e=>{if(e.key==='Enter')applyCustomTime();};
+$('start').onclick=()=>running?pause():start();
+$('reset').onclick=prepare;
+$('goNext').onclick=next;
+$('goPrev').onclick=prev;
+$('phase').onchange=e=>{pause();p=+e.target.value;i=0;prepare();};
+$('fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+document.onkeydown=e=>{
+  const tag=document.activeElement.tagName;
+  if(e.code==='Space'&&tag!=='INPUT'&&tag!=='SELECT'){e.preventDefault();running?pause():start();}
+  if(e.key==='ArrowRight'&&tag!=='INPUT')next();
+  if(e.key==='ArrowLeft'&&tag!=='INPUT')prev();
+  if(e.key.toLowerCase()==='r'&&tag!=='INPUT')prepare();
+  if(e.key.toLowerCase()==='f'&&tag!=='INPUT')$('fs').click();
+};
+syncInputs();render();
+</script>
+</body></html>
