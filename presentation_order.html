@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>발표 순서 안내</title>
+  <style>
+    :root{
+      --bg1:#08111f;
+      --bg2:#111827;
+      --panel:#0f172acc;
+      --line:#334155;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --accent:#22d3ee;
+      --accent2:#8b5cf6;
+      --done:#22c55e;
+      --next:#f59e0b;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      background:#020617;
+      color:var(--text);
+      font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+      overflow:hidden;
+    }
+
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+    }
+
+    .stage{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      max-width:177.777vh;
+      max-height:56.25vw;
+      min-height:0;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(34,211,238,.14), transparent 30%),
+        radial-gradient(circle at 80% 80%, rgba(139,92,246,.14), transparent 35%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 34%;
+      gap:2.2%;
+      padding:2.6%;
+      overflow:hidden;
+    }
+
+    .main{
+      min-width:0;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:2.2%;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+    }
+
+    .title{
+      font-size:clamp(18px,2.1vw,40px);
+      font-weight:800;
+      letter-spacing:-.03em;
+    }
+
+    .count{
+      font-size:clamp(16px,1.8vw,34px);
+      font-weight:800;
+      color:var(--accent);
+      padding:.35em .7em;
+      border:1px solid rgba(34,211,238,.35);
+      background:rgba(15,23,42,.72);
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .current-card{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      min-height:0;
+      border:1px solid rgba(148,163,184,.22);
+      border-radius:28px;
+      background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.62));
+      box-shadow:0 24px 80px rgba(0,0,0,.25);
+      padding:5%;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .current-card::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:conic-gradient(from 180deg, transparent, rgba(34,211,238,.10), transparent, rgba(139,92,246,.10), transparent);
+      animation:spin 18s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .label{
+      position:relative;
+      z-index:1;
+      color:var(--muted);
+      font-size:clamp(16px,1.6vw,30px);
+      font-weight:700;
+      margin-bottom:.6em;
+      letter-spacing:.08em;
+    }
+
+    .team-name{
+      position:relative;
+      z-index:1;
+      font-size:clamp(42px,7.2vw,124px);
+      line-height:1.08;
+      font-weight:900;
+      letter-spacing:-.055em;
+      word-break:keep-all;
+      overflow-wrap:anywhere;
+      text-shadow:0 8px 34px rgba(34,211,238,.12);
+      max-width:95%;
+    }
+
+    .sub{
+      position:relative;
+      z-index:1;
+      margin-top:1.2em;
+      color:#cbd5e1;
+      font-size:clamp(14px,1.25vw,24px);
+      font-weight:600;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns:1fr 1.3fr 1fr;
+      gap:2%;
+    }
+
+    button{
+      border:0;
+      border-radius:18px;
+      padding:.85em 1em;
+      font-size:clamp(16px,1.35vw,26px);
+      font-weight:800;
+      cursor:pointer;
+      color:white;
+      transition:.15s ease;
+      box-shadow:0 10px 28px rgba(0,0,0,.18);
+    }
+    button:active{transform:scale(.98)}
+    button:disabled{opacity:.35;cursor:not-allowed}
+    #prevBtn{background:#334155}
+    #resetBtn{background:#475569}
+    #nextBtn{background:linear-gradient(135deg,var(--accent2),var(--accent))}
+
+    .side{
+      min-width:0;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      border:1px solid rgba(148,163,184,.2);
+      border-radius:24px;
+      background:rgba(15,23,42,.72);
+      padding:5%;
+      overflow:hidden;
+    }
+
+    .side h2{
+      margin:0 0 4%;
+      font-size:clamp(18px,1.7vw,30px);
+      letter-spacing:-.03em;
+    }
+
+    .team-list{
+      list-style:none;
+      padding:0;
+      margin:0;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:1.5%;
+      scrollbar-width:thin;
+    }
+
+    .team-item{
+      display:grid;
+      grid-template-columns:2.2em 1fr;
+      align-items:center;
+      gap:.7em;
+      padding:.52em .72em;
+      border-radius:12px;
+      color:#cbd5e1;
+      font-size:clamp(12px,1.08vw,20px);
+      font-weight:700;
+      min-height:0;
+      border:1px solid transparent;
+      transition:.18s ease;
+    }
+    .team-item .num{
+      color:#64748b;
+      text-align:center;
+      font-variant-numeric:tabular-nums;
+    }
+    .team-item.done{
+      opacity:.52;
+      text-decoration:line-through;
+    }
+    .team-item.current{
+      background:linear-gradient(90deg,rgba(34,211,238,.2),rgba(139,92,246,.18));
+      border-color:rgba(34,211,238,.5);
+      color:white;
+      transform:translateX(-2px);
+    }
+    .team-item.current .num{color:var(--accent)}
+    .team-item.next{
+      color:#fde68a;
+      border-color:rgba(245,158,11,.22);
+    }
+
+    .progress{
+      position:absolute;
+      left:0;
+      bottom:0;
+      height:8px;
+      width:0;
+      background:linear-gradient(90deg,var(--accent2),var(--accent));
+      transition:width .25s ease;
+    }
+
+    @media (max-aspect-ratio: 1/1){
+      html,body{overflow:auto}
+      body{display:block;background:linear-gradient(135deg,var(--bg1),var(--bg2))}
+      .stage{
+        width:100%;
+        height:auto;
+        min-height:100dvh;
+        max-width:none;
+        max-height:none;
+        grid-template-columns:1fr;
+        grid-template-rows:minmax(55dvh,auto) auto;
+        gap:16px;
+        padding:16px;
+        overflow:visible;
+      }
+      .main{min-height:calc(62dvh - 16px)}
+      .current-card{min-height:42dvh;border-radius:22px}
+      .team-name{font-size:clamp(42px,13vw,82px)}
+      .controls{grid-template-columns:1fr 1fr}
+      #resetBtn{grid-column:1 / -1;grid-row:2}
+      .side{max-height:38dvh;padding:16px;border-radius:20px}
+      .team-item{font-size:16px;padding:10px 12px}
+      .progress{position:fixed}
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="main">
+      <div class="topbar">
+        <div class="title">해커톤 발표 순서</div>
+        <div class="count" id="countText">1 / 16</div>
+      </div>
+
+      <div class="current-card">
+        <div class="label">현재 발표 팀</div>
+        <div class="team-name" id="teamName">remind</div>
+        <div class="sub" id="nextText">다음 팀: 애플파이</div>
+      </div>
+
+      <div class="controls">
+        <button id="prevBtn" type="button">← 이전</button>
+        <button id="resetBtn" type="button">처음으로</button>
+        <button id="nextBtn" type="button">다음 →</button>
+      </div>
+    </section>
+
+    <aside class="side">
+      <h2>팀 발표 순서</h2>
+      <ol class="team-list" id="teamList"></ol>
+    </aside>
+
+    <div class="progress" id="progress"></div>
+  </main>
+
+  <script>
+    const teams = [
+      "remind",
+      "애플파이",
+      "공대오빠들",
+      "선부홍즈",
+      "AI디어",
+      "부릉부릉",
+      "Y2J",
+      "refinder",
+      "이덕황",
+      "VITA",
+      "해커톤 해결사",
+      "나르시시스트 공학자들",
+      "AIDO(아이두)",
+      "악어떼가 나타났다",
+      "인사이트",
+      "생명에 미친자들"
+    ];
+
+    let current = 0;
+
+    const teamName = document.getElementById("teamName");
+    const countText = document.getElementById("countText");
+    const nextText = document.getElementById("nextText");
+    const teamList = document.getElementById("teamList");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const progress = document.getElementById("progress");
+
+    function renderList(){
+      teamList.innerHTML = "";
+      teams.forEach((team, index) => {
+        const li = document.createElement("li");
+        li.className = "team-item";
+        if(index < current) li.classList.add("done");
+        if(index === current) li.classList.add("current");
+        if(index === current + 1) li.classList.add("next");
+
+        li.innerHTML = `<span class="num">${index + 1}</span><span>${team}</span>`;
+        li.addEventListener("click", () => {
+          current = index;
+          render();
+        });
+        teamList.appendChild(li);
+      });
+
+      const active = teamList.querySelector(".current");
+      if(active) active.scrollIntoView({block:"nearest", behavior:"smooth"});
+    }
+
+    function render(){
+      teamName.textContent = teams[current];
+      countText.textContent = `${current + 1} / ${teams.length}`;
+      nextText.textContent = current < teams.length - 1
+        ? `다음 팀: ${teams[current + 1]}`
+        : "마지막 발표 팀입니다";
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === teams.length - 1;
+      progress.style.width = `${((current + 1) / teams.length) * 100}%`;
+      renderList();
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if(current > 0){
+        current--;
+        render();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if(current < teams.length - 1){
+        current++;
+        render();
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      current = 0;
+      render();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if(["ArrowRight","PageDown","Enter"," "].includes(e.key)){
+        e.preventDefault();
+        nextBtn.click();
+      }
+      if(["ArrowLeft","PageUp","Backspace"].includes(e.key)){
+        e.preventDefault();
+        prevBtn.click();
+      }
+      if(e.key === "Home"){
+        e.preventDefault();
+        resetBtn.click();
+      }
+    });
+
+    let touchStartX = 0;
+    document.addEventListener("touchstart", e => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, {passive:true});
+
+    document.addEventListener("touchend", e => {
+      const delta = e.changedTouches[0].screenX - touchStartX;
+      if(Math.abs(delta) < 60) return;
+      if(delta < 0) nextBtn.click();
+      else prevBtn.click();
+    }, {passive:true});
+
+    render();
+  </script>
+</body>
+</html>
