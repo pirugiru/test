@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>왜 내 에이전트는 ChatGPT보다 답답할까 — 선생님을 위한 43장</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<style>
+:root{
+  --hi:#ffd24a;
+  --c1:#241d33; --c2:#0f2f42; --cg:#33302a; --c3:#0e3b34; --c4:#16151f;
+  --c5:#f5f2ea; --c6:#6b2418; --c7:#2f2a55; --c8:#16151f;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --body:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;word-break:keep-all;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--body);background:#08080c;color:#fff;line-height:1.6}
+
+.deck{height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;
+  max-width:560px;margin:0 auto;position:relative;background:#08080c;
+  box-shadow:0 0 60px rgba(0,0,0,.6);scrollbar-width:none}
+.deck::-webkit-scrollbar{display:none}
+.card{height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;
+  padding:70px 26px 58px;display:flex;flex-direction:column;justify-content:center;
+  overflow-y:auto;position:relative}
+.inner{display:flex;flex-direction:column;width:100%}
+.lede,.body{min-width:0}
+.k1{background:var(--c1)} .k2{background:var(--c2)} .kg{background:var(--cg)} .k3{background:var(--c3)}
+.k4{background:var(--c4)} .k6{background:var(--c6)} .k7{background:var(--c7)} .k8{background:var(--c8)}
+.k5{background:var(--c5);color:#15141c}
+
+.bar{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.14);z-index:40}
+.bar i{display:block;height:100%;width:0;background:var(--hi);transition:width .18s linear}
+.tabs{position:fixed;right:max(8px,calc(50% - 280px + 8px));top:50%;transform:translateY(-50%);
+  z-index:35;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.tabs b{writing-mode:vertical-rl;font-family:var(--mono);font-size:8px;letter-spacing:.14em;
+  padding:8px 3px;border-radius:3px 0 0 3px;background:rgba(255,255,255,.15);
+  color:rgba(255,255,255,.48);font-weight:400;transition:all .3s ease;white-space:nowrap}
+.tabs b.on{background:var(--hi);color:#15141c;font-weight:700}
+.deck.light .tabs b{background:rgba(21,20,28,.13);color:rgba(21,20,28,.48)}
+.deck.light .tabs b.on{background:#15141c;color:var(--hi)}
+.num{position:absolute;top:21px;left:26px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;opacity:.4}
+
+.kicker{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--hi);margin-bottom:13px;display:block}
+.k5 .kicker{color:#a8571c}
+h1{font-size:clamp(1.8rem,7vw,2.35rem);font-weight:900;letter-spacing:-.04em;line-height:1.2;margin-bottom:17px}
+h2{font-size:clamp(1.4rem,5.4vw,1.82rem);font-weight:800;letter-spacing:-.035em;line-height:1.27;margin-bottom:15px}
+p{font-size:clamp(.93rem,3.5vw,1.02rem);color:rgba(255,255,255,.76);margin-bottom:12px}
+.k5 p{color:#4a4550}
+.k5 ul.list li em,.k5 .vs .t,.k5 .gate .sub,.k5 .rung .d{color:#5b5560}
+p:last-child{margin-bottom:0}
+mark{background:none;color:var(--hi);font-weight:800}
+.k5 mark{color:#a8571c}
+u{text-decoration:none;box-shadow:inset 0 -.45em 0 rgba(255,210,74,.26)}
+.k5 u{box-shadow:inset 0 -.45em 0 rgba(255,210,74,.6)}
+.small{font-size:.84rem;color:rgba(255,255,255,.60);line-height:1.55}
+.k5 .small{color:#5b5560}
+.hint{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-family:var(--mono);
+  font-size:10px;letter-spacing:.12em;opacity:.45;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+
+.vs{display:flex;gap:10px;margin:4px 0}
+.vs>div{flex:1;border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:13px 12px}
+.k5 .vs>div{border-color:rgba(21,20,28,.16)}
+.vs .t{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.66);margin-bottom:5px}
+.vs .h{font-size:.98rem;font-weight:800;letter-spacing:-.02em;margin-bottom:5px;line-height:1.3}
+.vs p{font-size:.82rem;margin:0;line-height:1.48}
+.vs .on{background:rgba(255,210,74,.11);border-color:var(--hi)}
+
+.axes li{list-style:none;border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:12px 13px;margin-bottom:9px}
+.axes .n{font-family:var(--mono);font-size:9px;color:var(--hi);letter-spacing:.1em;display:block;margin-bottom:4px}
+.axes .h{font-size:1rem;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.axes .d{font-size:.83rem;color:rgba(255,255,255,.66);line-height:1.45}
+
+.flow{margin:2px 0 4px}
+.flow li{list-style:none;position:relative;padding:0 0 15px 38px;border-left:2px solid rgba(255,255,255,.2);margin-left:11px}
+.k5 .flow li{border-left-color:rgba(21,20,28,.16)}
+.flow li:last-child{border-left-color:transparent;padding-bottom:0}
+.flow li::before{content:attr(data-n);position:absolute;left:-11px;top:0;width:22px;height:22px;
+  border-radius:50%;background:var(--hi);color:#15141c;font-family:var(--mono);font-size:10px;
+  font-weight:700;display:flex;align-items:center;justify-content:center}
+.flow .h{font-size:.98rem;font-weight:800;letter-spacing:-.02em;line-height:1.3;margin-bottom:2px}
+.flow .d{font-size:.83rem;color:rgba(255,255,255,.68);line-height:1.48}
+
+.big{font-family:var(--mono);font-size:clamp(2.9rem,13.5vw,4.2rem);font-weight:700;color:var(--hi);
+  line-height:.95;letter-spacing:-.04em;margin:4px 0 6px}
+.k5 .big{color:#15141c}
+.unit{font-size:1rem;font-weight:700;letter-spacing:-.01em;opacity:.8;margin-left:6px}
+
+.calc{border:1px solid rgba(21,20,28,.18);border-radius:12px;padding:14px;margin-bottom:13px;background:rgba(255,255,255,.55)}
+.calc .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:#a8571c;margin-bottom:6px}
+.calc .row{display:flex;justify-content:space-between;font-size:.86rem;padding:3px 0;color:#4a4550}
+.calc .row b{color:#15141c;font-weight:700}
+.calc .out{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(21,20,28,.22);display:flex;justify-content:space-between;align-items:baseline}
+.calc .out span{font-size:.84rem;color:#4a4550}
+.calc .out strong{font-family:var(--mono);font-size:1.45rem;font-weight:700;color:#15141c}
+
+ul.list{list-style:none}
+ul.list li{padding:9px 0 9px 25px;position:relative;font-size:.93rem;border-bottom:1px solid rgba(255,255,255,.13);line-height:1.5}
+.k5 ul.list li{border-bottom-color:rgba(21,20,28,.12)}
+ul.list li:last-child{border-bottom:none}
+ul.list li::before{content:"→";position:absolute;left:0;top:9px;color:var(--hi);font-family:var(--mono);font-size:.85rem}
+.k5 ul.list li::before{color:#a8571c}
+ul.list li b{font-weight:800}
+ul.list li em{font-style:normal;display:block;font-size:.81rem;color:rgba(255,255,255,.62);margin-top:2px}
+ul.no li::before{content:"×";color:#ff8b7a}
+ul.cut li::before{content:"✂";color:#ff8b7a;font-size:.78rem;top:11px}
+ul.yes li::before{content:"✓";color:#7ee0b8}
+
+.case{border-left:3px solid var(--hi);padding:2px 0 2px 14px;margin-bottom:14px}
+.case .who{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--hi);margin-bottom:4px}
+.case .what{font-size:.98rem;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;line-height:1.35}
+.case .res{font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5}
+
+.gate{border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:13px;margin-bottom:9px}
+.gate .q{font-family:var(--mono);font-size:9px;color:var(--hi);letter-spacing:.1em;margin-bottom:4px}
+.gate .txt{font-size:.96rem;font-weight:700;letter-spacing:-.02em;line-height:1.35;margin-bottom:3px}
+.gate .sub{font-size:.81rem;color:rgba(255,255,255,.64);line-height:1.45}
+
+.rung{border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:13px;margin-bottom:9px;position:relative;overflow:hidden}
+.rung::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--hi)}
+.rung.r1::after{opacity:.3} .rung.r2::after{opacity:.65}
+.rung .lv{font-family:var(--mono);font-size:9px;color:var(--hi);letter-spacing:.1em;margin-bottom:4px}
+.rung .h{font-size:1rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px}
+.rung .d{font-size:.83rem;color:rgba(255,255,255,.66);line-height:1.45}
+
+.qa{margin-bottom:13px}
+.qa .q{font-size:.95rem;font-weight:800;letter-spacing:-.02em;margin-bottom:4px;line-height:1.35}
+.qa .q::before{content:"Q. ";font-family:var(--mono);font-size:.8rem;color:var(--hi)}
+.qa .a{font-size:.85rem;color:rgba(255,255,255,.7);line-height:1.5;padding-left:2px}
+
+.map{width:100%;border-collapse:collapse;font-size:.83rem;margin:4px 0}
+.map th,.map td{border:1px solid rgba(255,255,255,.18);padding:8px 7px;text-align:left;vertical-align:top;line-height:1.4}
+.map thead th{background:rgba(255,255,255,.09);font-family:var(--mono);font-size:9px;letter-spacing:.08em;font-weight:400;opacity:.75}
+.map tbody td:first-child{font-weight:700;font-size:.82rem}
+.map .hl{color:var(--hi);font-weight:700}
+
+.srcs{list-style:none;font-size:.81rem}
+.srcs li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.72);line-height:1.5}
+.srcs li:last-child{border-bottom:none}
+.srcs a{color:var(--hi);text-decoration:underline;text-underline-offset:2px}
+
+/* ══════ 데스크톱 ══════ */
+.nav{display:none}
+@media (min-width:920px){
+  .deck{max-width:none;box-shadow:none}
+  .card{padding:96px 72px 88px;justify-content:center}
+  .inner{max-width:1120px;margin:0 auto;display:grid;
+    grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);
+    gap:clamp(44px,5vw,80px);align-items:center}
+  .inner.solo{display:block;max-width:860px;text-align:left}
+  .num{top:34px;left:auto;right:34px;font-size:11px}
+  .tabs{right:26px;gap:5px}
+  .tabs b{font-size:9px;padding:11px 4px;letter-spacing:.18em}
+
+  .kicker{font-size:11px;margin-bottom:18px}
+  h1{font-size:clamp(2.6rem,3.6vw,3.5rem);margin-bottom:22px}
+  h2{font-size:clamp(2rem,2.9vw,2.7rem);margin-bottom:20px}
+  .inner.solo h2{font-size:clamp(2.4rem,3.4vw,3.2rem)}
+  .lede p{font-size:1.02rem}
+  p{font-size:1.08rem;margin-bottom:15px}
+  .small{font-size:.94rem}
+
+  ul.list li{font-size:1.04rem;padding:12px 0 12px 30px}
+  ul.list li::before{top:12px;font-size:.95rem}
+  ul.list li em{font-size:.9rem;margin-top:3px}
+  .axes li{padding:16px 18px;margin-bottom:12px}
+  .axes .h{font-size:1.15rem} .axes .d{font-size:.94rem} .axes .n{font-size:10px}
+  .vs{gap:16px} .vs>div{padding:20px 18px;border-radius:14px}
+  .vs .h{font-size:1.18rem;margin-bottom:8px} .vs p{font-size:.94rem} .vs .t{font-size:10px}
+  .flow li{padding:0 0 20px 46px;margin-left:13px}
+  .flow li::before{width:26px;height:26px;left:-13px;font-size:11px}
+  .flow .h{font-size:1.12rem} .flow .d{font-size:.94rem}
+  .big{font-size:clamp(4rem,6.5vw,6rem)} .unit{font-size:1.25rem}
+  .calc{padding:20px;border-radius:14px}
+  .calc .row{font-size:.98rem;padding:5px 0}
+  .calc .out strong{font-size:1.9rem}
+  .calc .lbl{font-size:10px}
+  .case{padding-left:20px;margin-bottom:20px;border-left-width:4px}
+  .case .what{font-size:1.14rem} .case .res{font-size:.96rem} .case .who{font-size:10px}
+  .gate{padding:17px 18px;margin-bottom:12px;border-radius:14px}
+  .gate .txt{font-size:1.1rem} .gate .sub{font-size:.92rem} .gate .q{font-size:10px}
+  .rung{padding:17px 18px;margin-bottom:12px;border-radius:14px}
+  .rung .h{font-size:1.15rem} .rung .d{font-size:.94rem} .rung .lv{font-size:10px}
+  .qa{margin-bottom:18px}
+  .qa .q{font-size:1.08rem} .qa .a{font-size:.96rem}
+  .map{font-size:.98rem} .map th,.map td{padding:12px 12px}
+  .map thead th{font-size:10px}
+  .parts{gap:12px} .parts div{padding:17px 16px}
+  .parts .k{font-size:1.08rem} .parts .d{font-size:.9rem}
+  .srcs{font-size:.94rem} .srcs li{padding:10px 0}
+  .hint{bottom:34px;font-size:11px}
+
+  /* 이전 / 다음 */
+  .nav{display:flex;position:fixed;bottom:30px;right:26px;z-index:38;gap:8px;align-items:center}
+  .nav .cnt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;opacity:.5;margin-right:6px}
+  .nav button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.28);
+    background:rgba(255,255,255,.06);color:#fff;font-size:15px;cursor:pointer;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:all .2s ease;font-family:var(--mono)}
+  .nav button:hover{background:var(--hi);color:#15141c;border-color:var(--hi)}
+  .nav button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+  .deck.light ~ .nav .cnt{color:#15141c}
+  .deck.light ~ .nav button{border-color:rgba(21,20,28,.3);background:rgba(21,20,28,.05);color:#15141c}
+  .deck.light ~ .nav button:hover{background:#15141c;color:var(--hi);border-color:#15141c}
+}
+@media (min-width:920px) and (max-height:820px){
+  .card{padding:74px 60px 70px}
+  h1{font-size:clamp(2.2rem,3vw,2.9rem)}
+  h2{font-size:clamp(1.7rem,2.4vw,2.2rem)}
+  .inner.solo h2{font-size:clamp(2rem,2.8vw,2.6rem)}
+  p{font-size:1.02rem;margin-bottom:13px}
+  ul.list li{font-size:.99rem;padding:10px 0 10px 28px}
+  .big{font-size:clamp(3.4rem,5.5vw,4.8rem)}
+  .qa{margin-bottom:14px}
+}
+@media (min-width:1500px){
+  .inner{max-width:1280px}
+  .inner.solo{max-width:960px}
+  .card{padding:110px 90px 100px}
+}
+
+@media (max-height:660px) and (max-width:919px){
+  .card{padding:58px 22px 46px}
+  h1{font-size:1.58rem} h2{font-size:1.26rem}
+  p{font-size:.89rem;margin-bottom:9px}
+  .big{font-size:2.6rem}
+  .flow li{padding-bottom:12px}
+  .map th,.map td{padding:6px 5px;font-size:.78rem}
+}
+@media (prefers-reduced-motion:reduce){.deck{scroll-behavior:auto}.hint{animation:none}}
+
+/* ═══ 원칙 3 · 길찾기 ═══ */
+.bar i{position:relative;z-index:2}
+.bar .tick{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.34);z-index:1}
+
+.tabs{pointer-events:none}
+.tabs b{border:none;font-family:var(--mono)}
+.tabs b:hover{background:rgba(255,255,255,.34);color:#fff}
+.tabs b.on:hover{background:var(--hi);color:#15141c}
+.tabs b:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.deck.light .tabs b:hover{background:rgba(21,20,28,.3);color:#fff}
+.deck.light .tabs b.on:hover{background:#15141c;color:var(--hi)}
+
+/* 챕터 진입 표시 — 원칙 4 */
+.chlabel{display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--hi);opacity:.9}
+.chlabel .n{border:1px solid currentColor;border-radius:3px;padding:2px 6px}
+.chlabel .nm{font-family:var(--body);font-size:.78rem;font-weight:700;letter-spacing:.02em}
+.chlabel::after{content:"";flex:1;height:1px;background:currentColor;opacity:.32}
+.k5 .chlabel{color:#a8571c}
+
+/* 핵심 장 배지 */
+.keybadge{position:absolute;bottom:22px;left:26px;font-family:var(--mono);font-size:9px;
+  letter-spacing:.12em;color:var(--hi);border:1px solid currentColor;border-radius:3px;padding:3px 7px;opacity:.85}
+.k5 .keybadge{color:#a8571c}
+
+/* ═══ 목차 오버레이 ═══ */
+.menuBtn{position:fixed;top:16px;right:16px;z-index:45;width:40px;height:40px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.26);background:rgba(10,10,14,.5);backdrop-filter:blur(8px);
+  color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0}
+.menuBtn span{display:block;width:15px;height:1.5px;background:currentColor;border-radius:1px}
+.menuBtn:hover{border-color:var(--hi);color:var(--hi)}
+.menuBtn:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.deck.light ~ .menuBtn{color:#15141c;border-color:rgba(21,20,28,.28);background:rgba(245,242,234,.6)}
+
+.ov{position:fixed;inset:0;z-index:60;background:#0b0a10;overflow-y:auto;padding:64px 22px 48px;
+  display:none;-webkit-overflow-scrolling:touch}
+.ov.open{display:block}
+.ov h3{font-size:1.3rem;font-weight:900;letter-spacing:-.03em;margin-bottom:6px;color:#fff}
+.ov .sub{font-size:.86rem;color:rgba(255,255,255,.66);margin-bottom:20px;line-height:1.55}
+.ov .wrap{max-width:900px;margin:0 auto}
+.ov .filter{display:inline-flex;gap:0;border:1px solid rgba(255,255,255,.22);border-radius:8px;overflow:hidden;margin-bottom:24px}
+.ov .filter button{background:none;border:none;color:rgba(255,255,255,.75);font-family:var(--body);
+  font-size:.82rem;font-weight:600;padding:8px 14px;cursor:pointer}
+.ov .filter button.on{background:var(--hi);color:#15141c}
+.ov .filter button:focus-visible{outline:2px solid var(--hi);outline-offset:-2px}
+.ov .grp{margin-bottom:22px}
+.ov .grp>.gh{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;color:var(--hi);margin-bottom:8px}
+.ov .grp>.gh::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.14)}
+.ov a.item{display:flex;gap:12px;align-items:baseline;padding:8px 10px;border-radius:7px;
+  text-decoration:none;color:rgba(255,255,255,.82);font-size:.93rem;line-height:1.45;border:1px solid transparent}
+.ov a.item:hover{background:rgba(255,255,255,.07)}
+.ov a.item:focus-visible{outline:2px solid var(--hi);outline-offset:1px}
+.ov a.item .i{font-family:var(--mono);font-size:.72rem;color:rgba(255,255,255,.6);flex-shrink:0;min-width:22px}
+.ov a.item.here{border-color:var(--hi);background:rgba(255,210,74,.1)}
+.ov a.item.here .i{color:var(--hi)}
+.ov a.item .star{color:var(--hi);font-size:.7rem;flex-shrink:0}
+.ov.keyonly a.item:not(.key){display:none}
+.ov .close{position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.26);background:rgba(255,255,255,.05);color:#fff;
+  font-size:17px;cursor:pointer;font-family:var(--mono);line-height:1}
+.ov .close:hover{border-color:var(--hi);color:var(--hi)}
+.ov .close:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+body.locked{overflow:hidden}
+
+/* 원칙 6 · 포커스 */
+.card:focus{outline:none}
+.card:focus-visible{outline:2px solid var(--hi);outline-offset:-6px}
+a:focus-visible{outline:2px solid var(--hi);outline-offset:2px;border-radius:2px}
+
+@media (min-width:920px){
+  .tabs{pointer-events:auto}
+  .tabs b{cursor:pointer}
+  .menuBtn{top:22px;right:26px}
+  .ov{padding:80px 40px 60px}
+  .ov .wrap{max-width:1000px}
+  .ov h3{font-size:1.7rem}
+  .ov .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+  .ov .close{top:22px;right:26px}
+  .num{right:78px}
+  .keybadge{top:66px;right:72px;bottom:auto;left:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  .deck{scroll-behavior:auto}
+  .menuBtn,.tabs b,.ov a.item{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bar"><i id="prog"></i></div>
+<div class="tabs" id="tabs">
+  <b data-act="1">오해</b><b data-act="2">구분</b><b data-act="3">용어</b><b data-act="4">지도</b><b data-act="5">핵심</b>
+  <b data-act="6">손익</b><b data-act="7">학교</b><b data-act="8">사례</b><b data-act="9">결론</b>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ═══ 1. 오해 ═══ -->
+<section class="card k1" data-act="1"><span class="num"></span>
+  <span class="kicker">연수 중 잠깐</span>
+  <h1>지금 만드는 그 에이전트,<br>아마 <mark>쓰던 챗봇보다<br>답답해질</mark> 겁니다</h1>
+  <p>실패가 아닙니다. <b>원래 그렇게 되게 만드는 것</b>입니다. 왜 그런지가 오늘의 전부입니다.</p>
+  <div class="hint">↓ 밀어서 보기</div>
+</section>
+
+<section class="card k1" data-act="1"><span class="num"></span>
+  <span class="kicker">지금 이 연수실</span>
+  <h2>“ChatGPT에선 잘 되던데<br>여기선 왜 이래?”</h2>
+  <p>수업에서 잘 쓰던 걸 에이전트로 옮겼더니 답이 뻣뻣해지고, 되던 게 안 되고, 자료를 넣어도 엉뚱한 소리를 합니다.</p>
+  <p>대부분 <u>설정을 잘못한 게 아닙니다.</u> 에이전트로 만든다는 행위 자체가 원래 그런 결과를 냅니다.</p>
+</section>
+
+<section class="card k1" data-act="1"><span class="num"></span>
+  <span class="kicker">먼저 오해 하나</span>
+  <h2>“AI는 대답만,<br>에이전트는 실행”<br>— <mark>이미 아닙니다</mark></h2>
+  <p>이 설명은 2023년 이야기입니다. 지금은 그냥 쓰는 챗봇이 이미 에이전트입니다.</p>
+  <p class="small">이 오해를 깔고 있으면 뒤의 판단이 전부 어긋납니다. 다음 두 장에서 확인하겠습니다.</p>
+</section>
+
+<section class="card k1" data-act="1"><span class="num"></span>
+  <span class="kicker">확인 · 1</span>
+  <h2>지금 쓰시는 그것이<br>이미 에이전트입니다</h2>
+  <ul class="list yes">
+    <li>웹을 <b>스스로 검색해서</b> 근거를 가져옵니다</li>
+    <li>올린 파일을 <b>읽고 분석</b>합니다</li>
+    <li>계산이 필요하면 <b>코드를 짜서 돌려</b> 보고 결과를 확인합니다</li>
+    <li>틀린 걸 발견하면 <b>스스로 되짚어 고칩니다</b></li>
+    <li>한 번에 못 끝낼 일은 <b>단계를 나눠</b> 진행합니다</li>
+  </ul>
+  <p style="margin-top:13px">스스로 계획하고, 도구를 쓰고, 결과를 보고 다시 시도하는 것 — <mark>이게 에이전트의 정의입니다.</mark></p>
+</section>
+
+<section class="card k1" data-act="1"><span class="num"></span>
+  <span class="kicker">확인 · 2</span>
+  <h2>“자료 넣기”도<br>이미 기본 기능입니다</h2>
+  <p>ChatGPT의 프로젝트, Copilot의 파일 첨부, Gemini의 Gem — <b>자료를 넣어 두고 지시를 고정하는 것</b>은 이제 아무나 씁니다. 만들 필요가 없습니다.</p>
+  <p>그러니 <u>“우리 학교 규정을 알려주려고 에이전트를 만들어야지”</u>는 더 이상 만들 이유가 되지 못합니다. 프로젝트에 PDF 넣으면 끝입니다.</p>
+</section>
+
+<section class="card k1" data-act="1"><span class="num"></span>
+  <span class="kicker">그래서</span>
+  <h2>‘똑똑함’은<br>구분 기준이<br>아닙니다</h2>
+  <p>오히려 반대입니다. 범용 챗봇이 제일 똑똑하고, 만들어 붙인 에이전트는 <b>대개 그보다 덜 똑똑합니다.</b></p>
+  <p>그럼 뭘 기준으로 갈라야 할까요. 다음 장이 이 카드 전체의 축입니다.</p>
+</section>
+
+<!-- ═══ 2. 구분 ═══ -->
+<section class="card k2" data-act="2"><span class="num"></span>
+  <span class="kicker">진짜 구분선</span>
+  <h2>능력이 아니라<br><mark>이 세 가지</mark>로<br>나눕니다</h2>
+  <ul class="axes">
+    <li><span class="n">축 01</span><span class="h">누가 씁니까</span><span class="d">나만 / 나 말고 다른 사람도</span></li>
+    <li><span class="n">축 02</span><span class="h">내가 옆에 있습니까</span><span class="d">답을 매번 내가 보고 고침 / 나 없이 알아서 돎</span></li>
+    <li><span class="n">축 03</span><span class="h">어디서 돕니까</span><span class="d">내 대화창 / 조직의 채널·일정·시스템</span></li>
+  </ul>
+</section>
+
+<section class="card k2" data-act="2"><span class="num"></span>
+  <span class="kicker">왜 이 축인가</span>
+  <h2>같은 두뇌,<br>다른 책상</h2>
+  <p>OpenAI가 제품을 Chat / Work / Codex로 나눴을 때, 개발자들이 확인한 결론은 이랬습니다 — <b>같은 모델, 같은 사용량, 프롬프트와 화면 기본값만 다름.</b></p>
+  <p>즉 <u>능력의 경계가 아니라 작업 환경의 경계</u>입니다. 두 직원을 뽑은 게 아니라, 같은 사람에게 다른 책상과 도구를 준 것에 가깝습니다.</p>
+  <p class="small">Microsoft도 구조가 같습니다. 이름만 다릅니다.</p>
+</section>
+
+<section class="card k2" data-act="2"><span class="num"></span>
+  <span class="kicker">한 문장으로</span>
+  <h2>“<mark>내가 옆에<br>있느냐</mark>”</h2>
+  <p>이 질문 하나가 오늘 판단의 90%를 결정합니다.</p>
+  <p>내가 옆에서 매번 결과를 보고 고칠 거면 → 범용 챗봇이 제일 낫습니다.<br>내가 없는데도 남이 써야 한다면 → 그때부터 만들어야 합니다.</p>
+</section>
+
+<!-- ═══ 3. 용어 ═══ -->
+<section class="card kg" data-act="3"><span class="num"></span>
+  <span class="kicker">용어 정리 — 헷갈리는 진짜 이유</span>
+  <h2>다섯 단어부터<br>정리합니다</h2>
+  <p>연수 중에 <b>Instrument, Prompt, Knowledge, Action, Agent</b>가 순서 없이 섞여 나옵니다. 다섯 개가 각각 뭔지 모르면, 뒤에 나오는 설명도 겉돕니다.</p>
+  <p class="small">다음 여섯 장에서 하나씩 짚고, 마지막에 표로 정리합니다.</p>
+</section>
+
+<section class="card kg" data-act="3"><span class="num"></span>
+  <span class="kicker">용어 01 · PROMPT</span>
+  <h2>프롬프트 =<br><mark>한 번의 요청</mark></h2>
+  <p>“3학년 수준으로, 표로, 5개만 만들어 줘.”</p>
+  <p>지금 내가 <b>글로 친 지시</b> 그 자체입니다. 매번 다르게 칠 수도 있고, 자주 쓰는 걸 저장해 둘 수도 있습니다.</p>
+  <p class="small">에이전트를 만들 때 “지시문을 넣는다”고 하면, 넣는 그 문장이 바로 프롬프트입니다.</p>
+</section>
+
+<section class="card kg" data-act="3"><span class="num"></span>
+  <span class="kicker">용어 02 · KNOWLEDGE</span>
+  <h2>지식 =<br><mark>붙여둔 참고자료</mark></h2>
+  <p>학칙·공문 PDF처럼, AI가 원래 모르는 <b>우리 자료</b>를 올려 두는 것입니다.</p>
+  <ol class="flow">
+    <li data-n="1"><div class="h">질문이 들어옴</div><div class="d">“재시험 대상 기준이 뭔가요?”</div></li>
+    <li data-n="2"><div class="h">먼저 문서에서 찾음</div><div class="d">올려둔 자료 중 관련 대목만 골라 옴</div></li>
+    <li data-n="3"><div class="h">찾아온 것만 근거로 답함</div><div class="d">지어내는 대신 원문을 인용</div></li>
+  </ol>
+</section>
+
+<section class="card kg" data-act="3"><span class="num"></span>
+  <span class="kicker">용어 03 · INSTRUMENT (TOOL)</span>
+  <h2>도구 =<br><mark>쓸 수 있는 기능</mark> 하나하나</h2>
+  <p>메일 보내기, 일정 등록, 데이터베이스 조회, 계산기 — 에이전트가 <b>불러 쓸 수 있는 개별 기능</b>입니다.</p>
+  <p>연장통 속 낱개 연장이라고 생각하시면 됩니다. <u>연장이 있다고 저절로 일이 되는 건 아닙니다.</u> 누군가 그 연장을 실제로 집어 들어야 합니다.</p>
+  <p class="small">그 “집어 드는 순간”이 다음 단어, Action입니다.</p>
+</section>
+
+<section class="card kg" data-act="3"><span class="num"></span>
+  <span class="kicker">용어 04 · ACTION</span>
+  <h2>행동 =<br>도구를 <mark>실제로 쓴 사건</mark></h2>
+  <div class="vs">
+    <div>
+      <div class="t">INSTRUMENT</div>
+      <div class="h">명사 · 능력</div>
+      <p>“메일을 보낼 수 있는 기능”이 있다는 것</p>
+    </div>
+    <div class="on">
+      <div class="t">ACTION</div>
+      <div class="h">동사 · 실행</div>
+      <p>지금 이 메일을 <b>실제로 보냄</b></p>
+    </div>
+  </div>
+  <p class="small" style="margin-top:13px">도구는 있어도 안전하지만, <u>Action이 일어나는 순간부터 값어치와 위험이 동시에</u> 생깁니다. 이 카드에서 계속 “도구까지 붙이면 비싸진다”고 한 지점이 여기입니다.</p>
+</section>
+
+<section class="card kg" data-act="3"><span class="num"></span>
+  <span class="kicker">용어 05 · AGENT</span>
+  <h2>에이전트 =<br>이 넷을 묶어<br><mark>스스로 돌리는 것</mark></h2>
+  <p>Prompt(지시) + Knowledge(자료) + Instrument 목록을 미리 고정해 두면, 목표가 들어왔을 때 <b>어떤 도구를 언제 쓸지 스스로 판단</b>해서 Action을 실행합니다.</p>
+  <p class="small">앞서 말한 “안내 데스크” 비유의 재료가 정확히 이 넷입니다. 데스크에 앉은 사람이 지시(Prompt)를 알고, 자료철(Knowledge)을 갖고, 필요하면 전화나 도장(Instrument)을 쓰는(Action) 겁니다.</p>
+</section>
+
+<section class="card kg" data-act="3"><span class="num"></span>
+  <span class="kicker">한 표로 정리</span>
+  <h2>다섯 단어,<br>한눈에</h2>
+  <table class="map">
+    <thead><tr><th>용어</th><th>한 줄 정의</th><th>비유</th></tr></thead>
+    <tbody>
+      <tr><td class="hl">Prompt</td><td>한 번의 요청</td><td>“이렇게 해줘”</td></tr>
+      <tr><td class="hl">Knowledge</td><td>붙여둔 참고자료</td><td>책상 위 자료철</td></tr>
+      <tr><td class="hl">Instrument</td><td>쓸 수 있는 기능 하나</td><td>연장통 속 낱개 연장</td></tr>
+      <tr><td class="hl">Action</td><td>도구를 실제로 쓴 사건</td><td>연장을 실제로 휘두름</td></tr>
+      <tr><td class="hl">Agent</td><td>위 넷을 묶어 스스로 돌리는 것</td><td>자료철과 연장통을 갖추고<br>알아서 일하는 사람</td></tr>
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:12px">이 다섯 단어를 들고 다음 장으로 넘어가면, Agent Builder 화면에 있는 칸들이 <u>왜 그렇게 나뉘어 있는지</u> 바로 보입니다.</p>
+</section>
+
+<!-- ═══ 4. 지도 ═══ -->
+<section class="card k3" data-act="4"><span class="num"></span>
+  <span class="kicker">감 잡기 — ChatGPT 계열</span>
+  <h2>ChatGPT는<br>스스로 셋으로<br>나눠 놨습니다</h2>
+  <p>선생님들이 제일 익숙한 제품이니 여기서 출발합니다. Microsoft 이름표는 그다음에 붙이겠습니다.</p>
+  <p class="small">참고 — 명칭은 계속 바뀌는 중입니다. 이름이 아니라 <u>자리</u>를 기억하세요.</p>
+</section>
+
+<section class="card k3" data-act="4"><span class="num"></span>
+  <span class="kicker">자리 01</span>
+  <h2>Chat</h2>
+  <p><b>나 혼자, 내가 보면서, 대화창에서.</b></p>
+  <p>물어보고, 답 보고, 마음에 안 들면 다시 물어봅니다. 가장 자유롭고 가장 똑똑합니다. 제한이 없으니까요.</p>
+  <p class="small">수업 준비의 90%가 여기서 끝납니다.</p>
+</section>
+
+<section class="card k3" data-act="4"><span class="num"></span>
+  <span class="kicker">자리 02</span>
+  <h2>Work</h2>
+  <p><b>나 혼자, 내가 보면서, 내 파일과 앱에서.</b></p>
+  <p>대화창을 넘어 실제 파일을 열고, 문서를 만들고, 연결한 앱을 다룹니다. 여러 단계를 알아서 진행하고 결과물을 내놓습니다.</p>
+  <p class="small">여전히 <u>내가 확인하고 승인</u>합니다. 축 02가 아직 “내가 옆에 있음”입니다.</p>
+</section>
+
+<section class="card k3" data-act="4"><span class="num"></span>
+  <span class="kicker">자리 03 — 여기가 오늘의 주제</span>
+  <h2>Workspace<br>Agents</h2>
+  <p><b>남도 쓰고, 내가 없어도 돌고, 조직 채널에서.</b></p>
+  <p>한 명이 만들어 두면 팀원 전체가 호출할 수 있고, <mark>만든 사람이 오프라인이어도 계속 작동</mark>합니다. 정해진 일정에 알아서 돌기도 합니다.</p>
+  <p class="small" style="margin-top:11px">축 세 개가 전부 넘어갔습니다. <u>Agent Builder와 Copilot Studio가 정확히 이 자리</u>입니다.</p>
+</section>
+
+<section class="card k3" data-act="4"><span class="num"></span>
+  <span class="kicker">자리 04 — 학교 밖</span>
+  <h2>Codex</h2>
+  <p>같은 두뇌에 개발용 책상을 준 것. 저장소와 터미널이 무대입니다.</p>
+  <p class="small">정보 선생님이 아니면 넘어가셔도 됩니다. 다만 이 존재가 <u>“능력이 아니라 환경으로 나눴다”</u>는 증거입니다.</p>
+</section>
+
+<section class="card k3" data-act="4"><span class="num"></span>
+  <span class="kicker">이름표 바꿔 달기</span>
+  <h2>Microsoft로<br>옮기면</h2>
+  <table class="map">
+    <thead><tr><th>자리</th><th>ChatGPT</th><th>Microsoft</th></tr></thead>
+    <tbody>
+      <tr><td>대화</td><td>Chat</td><td>Copilot 채팅</td></tr>
+      <tr><td>내 업무</td><td>Work</td><td>M365 Copilot<br>(Word·Excel·Teams 안)</td></tr>
+      <tr><td class="hl">배포</td><td class="hl">Workspace<br>Agents</td><td class="hl">Agent Builder<br>Copilot Studio</td></tr>
+      <tr><td>개발</td><td>Codex</td><td>GitHub Copilot</td></tr>
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:11px">오늘 연수에서 배우는 건 <u>세 번째 줄</u>입니다. 나머지 세 줄은 이미 쓰고 계십니다.</p>
+</section>
+
+<section class="card k3" data-act="4"><span class="num"></span>
+  <span class="kicker">세 번째 줄 안에서도 둘</span>
+  <h2>가벼운 쪽과<br>무거운 쪽</h2>
+  <div class="vs">
+    <div>
+      <div class="t">가벼운 쪽</div>
+      <div class="h">Agent&nbsp;Builder</div>
+      <p>Copilot 화면 안에서 바로. 지시문+자료 정도. 교내 사람만. 라이선스에 포함.</p>
+    </div>
+    <div>
+      <div class="t">무거운 쪽</div>
+      <div class="h">Copilot&nbsp;Studio</div>
+      <p>별도 플랫폼. 외부 배포, 시스템 연결, 일정 실행. 크레딧 종량 과금.</p>
+    </div>
+  </div>
+  <p class="small" style="margin-top:12px">종량제는 1크레딧 $0.01, 선불 25,000크레딧 월 $200 (2026년 6월 미국 정가). <u>“얼마 든다”를 미리 말하기 어렵다</u>는 게 예산상 진짜 문제입니다.</p>
+</section>
+
+<!-- ═══ 5. 핵심 ═══ -->
+<section class="card k4" data-act="5"><span class="num"></span>
+  <span class="kicker">오늘의 핵심 — 여기만 봐도 됩니다</span>
+  <h2>에이전트를 만든다 =<br>능력을 더하는 게 아니라<br><mark>깎아내는 것</mark></h2>
+  <p>대부분 반대로 알고 계십니다. 그래서 만들고 나서 실망합니다.</p>
+</section>
+
+<section class="card k4" data-act="5"><span class="num"></span>
+  <span class="kicker">무엇을 깎나</span>
+  <h2>네 가지를<br>잘라 냅니다</h2>
+  <ul class="list cut">
+    <li><b>주제</b><em>무엇이든 물어도 되던 걸 → 학사 관련만</em></li>
+    <li><b>자료</b><em>인터넷 전체를 보던 걸 → 올려둔 PDF 안에서만</em></li>
+    <li><b>말투와 형식</b><em>상황 봐서 조절하던 걸 → 정해진 틀로 고정</em></li>
+    <li><b>판단</b><em>알아서 방법을 고르던 걸 → 정해진 절차대로만</em></li>
+  </ul>
+  <p class="small" style="margin-top:12px">그래서 <u>같은 모델인데도 답답해집니다.</u> 설정 실수가 아닙니다.</p>
+</section>
+
+<section class="card k4" data-act="5"><span class="num"></span>
+  <span class="kicker">왜 깎나</span>
+  <h2>깎아야<br>남에게 넘길 수<br>있기 때문입니다</h2>
+  <ul class="list yes">
+    <li><b>남이 써도 안전함</b><em>이상한 질문을 해도 이상한 답이 안 나감</em></li>
+    <li><b>내가 없어도 돎</b><em>내 판단 없이 돌아가려면 판단할 게 없어야 함</em></li>
+    <li><b>답이 매번 같음</b><em>사람마다 다른 답을 받는 사고를 막음</em></li>
+    <li><b>책임을 설명할 수 있음</b><em>왜 이렇게 답했는지 근거가 남음</em></li>
+  </ul>
+  <p style="margin-top:12px">깎아내는 대가로 이 넷을 삽니다. <mark>거래입니다.</mark></p>
+</section>
+
+<section class="card k4" data-act="5"><span class="num"></span>
+  <span class="kicker">그래서 이 판단</span>
+  <h2>내가 옆에 있을 일이면<br><mark>깎을 이유가 없습니다</mark></h2>
+  <div class="vs">
+    <div class="on">
+      <div class="t">내가 옆에 있음</div>
+      <div class="h">깎지 마세요</div>
+      <p>범용 챗봇 + 프로젝트에 자료. 제일 똑똑한 상태 그대로 쓰는 게 이득.</p>
+    </div>
+    <div>
+      <div class="t">내가 없어야 함</div>
+      <div class="h">깎으세요</div>
+      <p>그때 비로소 Agent Builder. 성능을 내주고 무인 운영을 삽니다.</p>
+    </div>
+  </div>
+  <p class="small" style="margin-top:13px">지금 연수실에서 만들고 계신 건 대부분 <u>왼쪽 일을 오른쪽 방식으로</u> 하는 중입니다.</p>
+</section>
+
+<section class="card k4" data-act="5"><span class="num"></span>
+  <span class="kicker">한 번 더</span>
+  <h2>답답한 건<br>정상입니다</h2>
+  <p>“ChatGPT에선 되던데 여기선 왜 안 되지?” — 안 되게 만든 게 맞습니다. <b>그게 실패가 아니라 완성입니다.</b></p>
+  <p>문제는 <u>깎을 필요가 없는 일까지 깎고 있을 때</u> 생깁니다. 그때는 시간만 쓰고 성능은 잃습니다.</p>
+</section>
+
+<!-- ═══ 6. 손익 ═══ -->
+<section class="card k5" data-act="6"><span class="num"></span>
+  <span class="kicker">그럼 언제 깎을 값어치가 있나</span>
+  <h2>다섯 가지 중<br>하나라도 해당돼야<br>합니다</h2>
+  <ul class="list">
+    <li><b>내가 없을 때도 돌아가야 함</b><em>야간 문의, 정해진 일정에 자동 실행</em></li>
+    <li><b>내 계정이 아닌 사람이 써야 함</b><em>다른 교사, 학부모, 학생</em></li>
+    <li><b>답이 매번 똑같아야 함</b><em>규정 안내, 민원 응대</em></li>
+    <li><b>누가 뭘 물었는지 기록이 남아야 함</b></li>
+    <li><b>조직 시스템·채널에 붙어야 함</b><em>Teams 채널, 홈페이지</em></li>
+  </ul>
+  <p class="small" style="margin-top:12px">“내 수업에서 나 혼자 쓰는 것”은 <u>다섯 개 중 하나도 해당되지 않습니다.</u></p>
+</section>
+
+<section class="card k5" data-act="6"><span class="num"></span>
+  <span class="kicker">비용 — 잘 안 말해주는 쪽</span>
+  <h2>깎는 데도<br>돈이 듭니다</h2>
+  <ul class="list">
+    <li><b>제작 시간</b><em>자료 정리가 제일 오래 걸립니다. 스캔 PDF·표투성이 한글 파일은 잘 안 읽힙니다</em></li>
+    <li><b>유지 시간</b><em>규정이 바뀌면 자료도 갈아야 함. 안 갈면 <u>틀린 답을 자신 있게</u> 합니다</em></li>
+    <li><b>사용료</b><em>Studio는 쓴 만큼 차감. 예산 항목을 만들기 어려움</em></li>
+    <li><b>인수인계</b><em>만든 사람이 떠나면 아무도 못 고침</em></li>
+  </ul>
+</section>
+
+<section class="card k5" data-act="6"><span class="num"></span>
+  <span class="kicker">그래서 판단은 계산으로</span>
+  <h2>손익분기<br>공식</h2>
+  <div class="calc">
+    <div class="lbl">회수 기간</div>
+    <div class="row"><span>제작·유지 시간</span><b>÷</b></div>
+    <div class="row"><span>1회 절약 시간</span><b>×</b></div>
+    <div class="row"><span>쓰는 사람 수</span><b>×</b></div>
+    <div class="row"><span>연간 반복 횟수</span><b></b></div>
+  </div>
+  <p><b>쉽게 말하면</b> — 만드는 데 들인 시간을 아낀 시간으로 언제 다 갚느냐입니다.</p>
+  <p>분모에서 <mark>사람 수</mark>가 곱셈으로 들어갑니다. 여기가 승부처입니다.</p>
+</section>
+
+<section class="card k5" data-act="6"><span class="num"></span>
+  <span class="kicker">계산 A · 혼자 쓰는 경우</span>
+  <h2>내 수업용</h2>
+  <div class="calc">
+    <div class="lbl">가정</div>
+    <div class="row"><span>제작·유지</span><b>4시간</b></div>
+    <div class="row"><span>1회 절약</span><b>5분</b></div>
+    <div class="row"><span>사람 수</span><b>1명</b></div>
+    <div class="row"><span>연간 반복</span><b>40회</b></div>
+    <div class="out"><span>회수까지</span><strong>1.2년</strong></div>
+  </div>
+  <p>게다가 <u>성능은 깎인 상태</u>입니다. 시간을 들여 더 못한 걸 얻은 셈입니다.</p>
+</section>
+
+<section class="card k5" data-act="6"><span class="num"></span>
+  <span class="kicker">계산 B · 여럿이 쓰는 경우</span>
+  <h2>전 교직원용</h2>
+  <div class="calc">
+    <div class="lbl">가정 — 제작 시간은 위와 똑같음</div>
+    <div class="row"><span>제작·유지</span><b>4시간</b></div>
+    <div class="row"><span>1회 절약</span><b>5분</b></div>
+    <div class="row"><span>사람 수</span><b>60명</b></div>
+    <div class="row"><span>연간 반복</span><b>4회</b></div>
+    <div class="out"><span>회수까지</span><strong>약 10주</strong></div>
+  </div>
+  <p class="small">여기서는 깎은 대가로 <u>“60명이 프롬프트 몰라도 쓸 수 있음”</u>을 샀습니다. 남는 장사입니다.<br>※ 숫자는 이해를 돕기 위한 가정치입니다.</p>
+</section>
+
+<!-- ═══ 7. 학교 ═══ -->
+<section class="card k6" data-act="7"><span class="num"></span>
+  <span class="kicker">학교의 조건 · 1</span>
+  <h2>반복은 많은데<br><mark>겹치지가</mark> 않습니다</h2>
+  <p>기업은 3천 명이 같은 질문을 합니다. “비밀번호 초기화 어떻게 해요.”</p>
+  <p>학교는 60명이 <b>제각각 다른 일</b>을 합니다. 국어과 수행평가, 체육대회 편성, 3학년 진학 상담 — 반복은 각자의 안에서만 일어납니다.</p>
+  <p class="small">사람 수가 1에 가까우면 어떤 도구로도 회수가 안 됩니다.</p>
+</section>
+
+<section class="card k6" data-act="7"><span class="num"></span>
+  <span class="kicker">학교의 조건 · 2</span>
+  <h2>붙일 시스템이<br>없습니다</h2>
+  <p>“내가 없어도 돌아간다”가 값어치가 되려면, <b>돌아갈 곳이 있어야</b> 합니다.</p>
+  <p>학교에서 자동화하고 싶은 건 대부분 NEIS와 K-에듀파인 안에 있고, 그쪽은 외부에서 붙일 통로가 열려 있지 않습니다.</p>
+  <p><u>결과</u> — 성능을 깎아 놓고, 깎아서 얻으려던 무인 운영도 못 합니다. 양쪽을 다 잃습니다.</p>
+</section>
+
+<section class="card k6" data-act="7"><span class="num"></span>
+  <span class="kicker">조건 2 보충 — 오해 정정</span>
+  <h2>다 막힌 건<br>아닙니다</h2>
+  <div class="vs">
+    <div class="on">
+      <div class="t">열려 있음</div>
+      <div class="h">개방 API</div>
+      <p>급식, 학사일정, 시간표, 학교 기본정보. 인증키만 받으면 됩니다.</p>
+    </div>
+    <div>
+      <div class="t">막혀 있음</div>
+      <div class="h">업무 시스템</div>
+      <p>학생 개인정보, 성적, 결재. 이쪽이 못 열립니다.</p>
+    </div>
+  </div>
+  <p class="small" style="margin-top:13px">“NEIS는 아예 안 된다”고 알고 계시면 <u>실제로 가능한 자동화까지 포기</u>하게 됩니다.</p>
+</section>
+
+<section class="card k6" data-act="7"><span class="num"></span>
+  <span class="kicker">학교의 조건 · 3</span>
+  <h2>내년에<br>담당자가 바뀝니다</h2>
+  <p>“내가 없어도 돈다”의 전제는 <b>누군가는 계속 관리한다</b>는 것입니다. 기업은 IT 부서가 합니다.</p>
+  <p>학교는 만든 선생님 한 분에게 붙어 있습니다. 인사이동 한 번이면 고칠 사람이 사라지고, 규정이 개정돼도 자료를 아무도 갈지 않습니다.</p>
+  <p class="small">방치된 에이전트는 없는 것보다 나쁩니다. <u>틀린 답을 자신 있게 하는 장치</u>가 됩니다.</p>
+</section>
+
+<section class="card k6" data-act="7"><span class="num"></span>
+  <span class="kicker">학교의 조건 · 4 — 지침</span>
+  <h2>여기부터는<br>넣으면 안 됩니다</h2>
+  <ul class="list no">
+    <li>이름 · 학번 · 생년월일</li>
+    <li>주소 · 연락처 · 가족관계</li>
+    <li>타인의 사진</li>
+    <li><b>파일 속성에 숨은 학번·이름</b><em>본문만 지우면 되는 게 아닙니다. 문서 정보에 남습니다</em></li>
+  </ul>
+  <p class="small" style="margin-top:12px">교육부·교육청 공동 <u>수행평가 AI 활용 관리 방안</u>에 명시된 범위입니다.</p>
+</section>
+
+<section class="card k6" data-act="7"><span class="num"></span>
+  <span class="kicker">학교의 조건 · 5 — 제도</span>
+  <h2>이건 성능과<br>무관하게 금지입니다</h2>
+  <ul class="list">
+    <li><b>생성형 AI로 쓴 내용을 학생부에 기록</b><em>2026 학생부 기재요령상 금지. 근거는 수업 중 실제 관찰이어야 함</em></li>
+    <li><b>학생 개인정보를 다루는 SW를 임의 도입</b><em>초·중등교육법 제29조의2 — 학교운영위원회 심의 필요</em></li>
+  </ul>
+  <p style="margin-top:13px">단, <mark>교사가 학생 개인정보 없이</mark> 수업 준비·행정 업무에 쓰는 도구는 심의 대상에서 제외됩니다.</p>
+  <p class="small"><u>이 경계선이 실무에서 가장 중요합니다.</u> 학생을 태우지 않으면 훨씬 자유롭습니다.</p>
+</section>
+
+<!-- ═══ 8. 사례 ═══ -->
+<section class="card k7" data-act="8"><span class="num"></span>
+  <span class="kicker">그럼 어디서 쓰나 · 1</span>
+  <h2>Microsoft가<br>자기 고객지원에</h2>
+  <div class="case">
+    <div class="who">MICROSOFT.COM 고객지원</div>
+    <div class="what">Copilot Studio로 만든 지원 에이전트에 분야별 하위 에이전트를 연결</div>
+    <div class="res">응답 지연 61% 감소, 사람에게 넘기는 건수 최대 70% 감소. 몇 주 만에 운영 투입.</div>
+  </div>
+  <p class="small">깎아 낸 대가로 <u>사람 없이 24시간, 수만 건</u>을 받아 냅니다. 거래가 성립하는 경우입니다.</p>
+</section>
+
+<section class="card k7" data-act="8"><span class="num"></span>
+  <span class="kicker">그럼 어디서 쓰나 · 2</span>
+  <h2>사내 IT<br>헬프데스크</h2>
+  <div class="case">
+    <div class="who">가장 널리 쓰이는 용도</div>
+    <div class="what">비밀번호 초기화, 프로그램 설치 승인, VPN 문제 해결</div>
+    <div class="res">1차 문의를 에이전트가 받아 내고, 사람은 진짜 어려운 것만 처리.</div>
+  </div>
+  <p class="small">Accenture는 20만 명 규모로 배포했습니다. <u>깎아도 되는 질문이 압도적으로 많은</u> 환경입니다.</p>
+</section>
+
+<section class="card k7" data-act="8"><span class="num"></span>
+  <span class="kicker">그럼 어디서 쓰나 · 3</span>
+  <h2>정형화된<br>업무 처리</h2>
+  <div class="case">
+    <div class="who">GRAEBEL — 이사·이전 서비스 기업</div>
+    <div class="what">들어온 메일을 읽고, 규정에 맞는지 검증하고, 주문 처리까지 자동으로</div>
+    <div class="res">Copilot Studio의 화면 조작 기능으로 사람이 하던 반복 입력을 대체.</div>
+  </div>
+  <p class="small">조건 — <u>절차가 문서로 확정돼 있고, 붙일 시스템이 열려 있음.</u> 학교에서 둘 다 어려운 부분입니다.</p>
+</section>
+
+<section class="card k7" data-act="8"><span class="num"></span>
+  <span class="kicker">세 사례의 공통점</span>
+  <h2 style="margin-bottom:6px">쓰는 사람이</h2>
+  <div class="big">1,000<span class="unit">명 이상</span></div>
+  <p>모두 <b>같은 질문을 하는 사람이 수천 명</b>이고, <b>붙일 시스템이 열려 있고</b>, <b>관리할 전담 조직이 있습니다.</b></p>
+  <p>Agent Builder는 훌륭한 도구입니다. 다만 <u>깎는 거래가 남는 장사가 되는 곳에서</u> 훌륭합니다.</p>
+</section>
+
+<!-- ═══ 9. 결론 ═══ -->
+<section class="card k8" data-act="9"><span class="num"></span>
+  <span class="kicker">그럼 나는 뭘 해야 하나</span>
+  <h2>0 아니면 1이<br>아닙니다</h2>
+  <div class="rung r1">
+    <div class="lv">LV.1 · 혼자 쓰는 일 전부</div>
+    <div class="h">범용 챗봇을 제대로 쓰기</div>
+    <div class="d">프로젝트에 자료 넣고, 잘 되는 지시문 저장해서 붙여넣기. 만들 것 없음. 성능 그대로.</div>
+  </div>
+  <div class="rung r2">
+    <div class="lv">LV.2 · 남이 써야 할 때</div>
+    <div class="h">지시문 + 자료만 깎은 에이전트</div>
+    <div class="d">Agent Builder면 충분. 추가 비용 거의 없음. 학교에서 현실적인 상한선.</div>
+  </div>
+  <div class="rung">
+    <div class="lv">LV.3 · 내가 없어야 돌아갈 때</div>
+    <div class="h">시스템·일정까지 붙인 에이전트</div>
+    <div class="d">Copilot Studio. 붙일 시스템·예산·전담자가 있을 때. 학교 단위로는 시기상조.</div>
+  </div>
+</section>
+
+<section class="card k8" data-act="9"><span class="num"></span>
+  <span class="kicker">3초 판별</span>
+  <h2>순서대로<br>물어보세요</h2>
+  <div class="gate"><div class="q">Q1</div><div class="txt">나 말고 다른 사람이 씁니까?</div><div class="sub">아니오 → LV.1에서 끝. 깎지 마세요.</div></div>
+  <div class="gate"><div class="q">Q2</div><div class="txt">내가 없을 때도 돌아가야 합니까?</div><div class="sub">아니오 → LV.2까지. Agent Builder면 충분합니다.</div></div>
+  <div class="gate"><div class="q">Q3</div><div class="txt">답의 근거가 될 문서가 이미 있습니까?</div><div class="sub">아니오 → 문서부터. 에이전트는 없는 규정을 만들어 내지 못합니다.</div></div>
+  <div class="gate"><div class="q">Q4</div><div class="txt">내년에 누가 관리합니까?</div><div class="sub">모름 → 1년짜리 시한부. 그 전제로만 만드세요.</div></div>
+</section>
+
+<section class="card k8" data-act="9"><span class="num"></span>
+  <span class="kicker">오늘 연수에서 대신 할 것</span>
+  <h2>혼자 쓸 건 <mark>그냥 쓰고</mark>,<br>남 줄 것만 <mark>깎으세요</mark></h2>
+  <ul class="list">
+    <li><b>지금 만들던 수업용은 멈추세요</b><em>프로젝트에 자료 넣고 지시문 저장. 5분이면 되고 성능도 안 잃습니다</em></li>
+    <li><b>대신 이런 걸 만드세요</b><em>신규 전입 교사 업무 안내 / 학교 규정 Q&A / 학부모 반복 문의 / 방과후·돌봄 신청 안내</em></li>
+    <li><b>공통점을 보세요</b><em>전부 “내가 없을 때 남이 묻는 것”이고, 학생 개인정보가 안 들어갑니다</em></li>
+  </ul>
+</section>
+
+<section class="card k8" data-act="9"><span class="num"></span>
+  <span class="kicker">이런 말이 나올 겁니다</span>
+  <h2>예상 질문</h2>
+  <div class="qa">
+    <div class="q">“그래도 만들어 두면 편하지 않나요?”</div>
+    <div class="a">혼자 쓸 거면 프로젝트가 더 편하고 더 똑똑합니다. 만드는 건 편해지려는 게 아니라 <b>남에게 넘기려는</b> 작업입니다.</div>
+  </div>
+  <div class="qa">
+    <div class="q">“그럼 에이전트가 챗봇보다 나쁜 건가요?”</div>
+    <div class="a">용도가 다릅니다. 승용차와 셔틀버스 차이입니다. 혼자 가는데 셔틀버스를 몰 이유가 없을 뿐입니다.</div>
+  </div>
+  <div class="qa">
+    <div class="q">“무료 아닌가요? 크레딧이 왜 나가요?”</div>
+    <div class="a">Agent Builder는 라이선스 포함, Copilot Studio는 별도 과금. 지금 어느 쪽으로 만들고 있는지부터 확인하세요.</div>
+  </div>
+  <div class="qa">
+    <div class="q">“그럼 이 연수는 왜 듣나요?”</div>
+    <div class="a">도구를 알아야 <u>안 쓸 판단</u>도 할 수 있습니다. 오늘 얻을 것은 사용법이 아니라 판단 기준입니다.</div>
+  </div>
+</section>
+
+<section class="card k8" data-act="9"><span class="num"></span>
+  <span class="kicker">마지막</span>
+  <h2 style="margin-bottom:18px">에이전트를 만든다는 건<br>AI를 <mark>더 똑똑하게</mark> 하는 게<br>아니라, <mark>내가 없어도<br>되게</mark> 만드는 일입니다</h2>
+  <p>내가 옆에 있을 일에는, 깎지 않은 그대로가 언제나 더 낫습니다.</p>
+  <ul class="srcs" style="margin-top:18px">
+    <li>제품 구분 · <a href="https://openai.com/index/introducing-agentkit/" target="_blank" rel="noopener">OpenAI — AgentKit 및 Workspace Agents 안내</a></li>
+    <li>사례 · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/adoption-case-studies" target="_blank" rel="noopener">Microsoft Learn — Copilot Studio 사례집</a></li>
+    <li>과금 · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management" target="_blank" rel="noopener">Microsoft Learn — 크레딧 요금</a></li>
+    <li>개방 API · <a href="https://open.neis.go.kr/portal/guide/apiIntroPage.do" target="_blank" rel="noopener">나이스 교육정보 개방 포털</a></li>
+    <li>지침 · <a href="https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=104984&lev=0&searchType=null&statusYN=W&page=1&s=moe&m=020402&opType=N" target="_blank" rel="noopener">교육부 — 수행평가 시 AI 활용 관리 방안</a></li>
+    <li class="small" style="opacity:.5">제품명은 변동이 잦습니다. 이름이 아니라 자리로 기억하세요. 2026-08 기준.</li>
+  </ul>
+</section>
+
+</div>
+
+
+<button class="menuBtn" id="menuBtn" type="button" aria-label="목차 열기" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="목차" hidden>
+  <button class="close" id="ovClose" type="button" aria-label="목차 닫기">✕</button>
+  <div class="wrap">
+    <h3>목차</h3>
+    <p class="sub">읽는 속도는 보시는 분이 정합니다. 시간이 없으면 ★ 표시된 여섯 장만 보셔도 요지는 전달됩니다.</p>
+    <div class="filter" role="group" aria-label="보기 방식">
+      <button type="button" id="fAll" class="on">전체 <span id="fAllN">48</span>장</button>
+      <button type="button" id="fKey">★ 핵심 6장</button>
+    </div>
+    <div class="grid" id="ovList"></div>
+  </div>
+</div>
+
+<div class="nav" id="nav">
+  <span class="cnt" id="cnt"></span>
+  <button type="button" id="prev" aria-label="이전 장">↑</button>
+  <button type="button" id="next" aria-label="다음 장">↓</button>
+</div>
+
+<script>
+(function(){
+  var deck=document.getElementById('deck'),
+      prog=document.getElementById('prog'),
+      bar=document.querySelector('.bar'),
+      tabs=[].slice.call(document.querySelectorAll('#tabs b')),
+      cards=[].slice.call(deck.querySelectorAll('.card')),
+      cnt=document.getElementById('cnt'),
+      total=cards.length,
+      CH={'1':'오해','2':'구분','3':'용어','4':'지도','5':'핵심','6':'손익','7':'학교','8':'사례','9':'결론'},
+      KEY={3:1,4:1,7:1,24:1,27:1,45:1},   /* 핵심 6장 — 원칙 2 */
+      reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      titles=[];
+
+  /* ── 장 구성: 번호 · 제목 추출 · 2단 분할 · 챕터 표시 ── */
+  var seen={};
+  cards.forEach(function(c,i){
+    var n=i+1, act=c.getAttribute('data-act');
+    c.id='s'+n;
+    c.setAttribute('tabindex','-1');
+    c.setAttribute('role','group');
+
+    var h=c.querySelector('h1,h2');
+    var title=h?h.textContent.replace(/\s+/g,' ').trim():('장 '+n);
+    titles.push(title);
+    c.setAttribute('aria-label', n+'장 · '+CH[act]+' · '+title);
+
+    var numEl=c.querySelector('.num');
+    if(numEl) numEl.textContent=('0'+n).slice(-2)+' / '+total;
+
+    if(KEY[n]){
+      var kb=document.createElement('div');
+      kb.className='keybadge'; kb.textContent='★ 핵심';
+      c.appendChild(kb);
+    }
+
+    /* 2단 분할 (원칙 5 — 같은 문서, 다른 배치) */
+    var inner=document.createElement('div'); inner.className='inner';
+    var lede=document.createElement('div');  lede.className='lede';
+    var body=document.createElement('div');  body.className='body';
+    var kids=[].slice.call(c.children), head=true;
+    kids.forEach(function(el){
+      if(el.classList.contains('num')||el.classList.contains('hint')||el.classList.contains('keybadge')) return;
+      if(head){ lede.appendChild(el); if(el.tagName==='H1'||el.tagName==='H2') head=false; }
+      else body.appendChild(el);
+    });
+
+    /* 챕터 첫 장 표시 (원칙 4 — 리듬) */
+    if(!seen[act]){
+      seen[act]=true;
+      var cl=document.createElement('div');
+      cl.className='chlabel';
+      cl.innerHTML='<span class="n">CH '+('0'+act)+'</span><span class="nm">'+CH[act]+'</span>';
+      lede.insertBefore(cl, lede.firstChild);
+    }
+
+    if(body.children.length<=1){
+      while(body.firstChild) lede.appendChild(body.firstChild);
+      inner.classList.add('solo'); inner.appendChild(lede);
+    } else { inner.appendChild(lede); inner.appendChild(body); }
+    c.appendChild(inner);
+  });
+
+  /* ── 진행바 챕터 눈금 (원칙 3 — 지형) ── */
+  function ticks(){
+    [].slice.call(bar.querySelectorAll('.tick')).forEach(function(t){t.remove()});
+    var max=deck.scrollHeight-deck.clientHeight; if(max<=0) return;
+    var done={};
+    cards.forEach(function(c){
+      var a=c.getAttribute('data-act');
+      if(done[a]||a==='1') { done[a]=1; return; }
+      done[a]=1;
+      var d=document.createElement('div');
+      d.className='tick';
+      d.style.left=Math.min(100,(c.offsetTop/max*100))+'%';
+      bar.appendChild(d);
+    });
+  }
+
+  /* ── 이동 ── */
+  function curIdx(){
+    var mid=deck.scrollTop+deck.clientHeight/2, idx=0;
+    for(var i=0;i<cards.length;i++){ if(cards[i].offsetTop<=mid) idx=i; }
+    return idx;
+  }
+  function go(i,instant){
+    i=Math.max(0,Math.min(cards.length-1,i));
+    deck.scrollTo({top:cards[i].offsetTop, behavior:(instant||reduce)?'auto':'smooth'});
+    try{ cards[i].focus({preventScroll:true}); }catch(e){ cards[i].focus(); }   /* 원칙 6 */
+  }
+
+  /* ── 상태 동기화 ── */
+  var hashTimer=null;
+  function sync(){
+    var max=deck.scrollHeight-deck.clientHeight;
+    prog.style.width=(max>0?(deck.scrollTop/max*100):0)+'%';
+    var i=curIdx(), act=cards[i].getAttribute('data-act');
+    tabs.forEach(function(t){
+      var on=t.getAttribute('data-act')===act;
+      t.classList.toggle('on',on);
+      t.setAttribute('aria-current', on?'true':'false');
+    });
+    deck.classList.toggle('light', act==='6');
+    if(cnt) cnt.textContent=(i+1)+' / '+total;
+    var items=ovList.querySelectorAll('a.item');
+    for(var k=0;k<items.length;k++) items[k].classList.toggle('here', +items[k].dataset.i===i);
+    clearTimeout(hashTimer);
+    hashTimer=setTimeout(function(){                                   /* 원칙 3 — 공유·복귀 */
+      try{ history.replaceState(null,'','#'+(i+1)); }catch(e){}
+    },260);
+  }
+  deck.addEventListener('scroll',function(){ window.requestAnimationFrame(sync); },{passive:true});
+  window.addEventListener('resize',function(){ ticks(); sync(); });
+
+  /* ── 인덱스 탭: 장식이 아니라 조작 (원칙 3) ── */
+  var firstOf={};
+  cards.forEach(function(c,i){ var a=c.getAttribute('data-act'); if(!(a in firstOf)) firstOf[a]=i; });
+  tabs.forEach(function(t){
+    var a=t.getAttribute('data-act');
+    var wide=window.matchMedia('(min-width:920px)');
+    t.setAttribute('role','button');
+    t.setAttribute('tabindex', wide.matches?'0':'-1');
+    if(wide.addEventListener) wide.addEventListener('change',function(ev){
+      t.setAttribute('tabindex', ev.matches?'0':'-1');
+    });
+    t.setAttribute('aria-label', CH[a]+' 장으로 이동');
+    t.addEventListener('click',function(){ go(firstOf[a]); });
+    t.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(firstOf[a]); }
+    });
+  });
+
+  /* ── 목차 ── */
+  var ov=document.getElementById('ov'), ovList=document.getElementById('ovList'),
+      menuBtn=document.getElementById('menuBtn'), ovClose=document.getElementById('ovClose'),
+      fAll=document.getElementById('fAll'), fKey=document.getElementById('fKey'), lastFocus=null;
+
+  var fAllN=document.getElementById('fAllN'); if(fAllN) fAllN.textContent=total;
+
+  (function buildTOC(){
+    var cur=null, grp=null;
+    cards.forEach(function(c,i){
+      var a=c.getAttribute('data-act');
+      if(a!==cur){
+        cur=a;
+        grp=document.createElement('div'); grp.className='grp';
+        var gh=document.createElement('div'); gh.className='gh';
+        gh.textContent='CH '+('0'+a)+' · '+CH[a];
+        grp.appendChild(gh); ovList.appendChild(grp);
+      }
+      var it=document.createElement('a');
+      it.className='item'+(KEY[i+1]?' key':'');
+      it.href='#'+(i+1); it.dataset.i=i;
+      it.innerHTML='<span class="i">'+('0'+(i+1)).slice(-2)+'</span>'+
+                   (KEY[i+1]?'<span class="star">★</span>':'')+
+                   '<span>'+titles[i].replace(/</g,'&lt;')+'</span>';
+      it.addEventListener('click',function(e){ e.preventDefault(); closeOv(); go(i); });
+      grp.appendChild(it);
+    });
+  })();
+
+  function openOv(){
+    lastFocus=document.activeElement;
+    ov.hidden=false; ov.classList.add('open'); document.body.classList.add('locked');
+    menuBtn.setAttribute('aria-expanded','true');
+    var here=ov.querySelector('a.item.here')||ov.querySelector('a.item');
+    if(here){ try{ here.scrollIntoView({block:'center'}); }catch(e){ here.scrollIntoView(); } }
+    (here||ovClose).focus();
+  }
+  function closeOv(){
+    ov.classList.remove('open'); ov.hidden=true; document.body.classList.remove('locked');
+    menuBtn.setAttribute('aria-expanded','false');
+    if(lastFocus&&lastFocus.focus) lastFocus.focus();
+  }
+  menuBtn.addEventListener('click',openOv);
+  ovClose.addEventListener('click',closeOv);
+  fAll.addEventListener('click',function(){ ov.classList.remove('keyonly'); fAll.classList.add('on'); fKey.classList.remove('on'); });
+  fKey.addEventListener('click',function(){ ov.classList.add('keyonly'); fKey.classList.add('on'); fAll.classList.remove('on'); });
+
+  /* 포커스 가두기 — 원칙 6 */
+  ov.addEventListener('keydown',function(e){
+    if(e.key!=='Tab') return;
+    var f=[].slice.call(ov.querySelectorAll('button, a.item')).filter(function(el){
+      return el.offsetParent!==null && getComputedStyle(el).display!=='none';
+    });
+    if(!f.length) return;
+    var first=f[0], last=f[f.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  });
+
+  /* ── 이전 / 다음 ── */
+  var pv=document.getElementById('prev'), nx=document.getElementById('next');
+  if(pv) pv.addEventListener('click',function(){ go(curIdx()-1); });
+  if(nx) nx.addEventListener('click',function(){ go(curIdx()+1); });
+
+  /* ── 키보드 (원칙 2·6) ── */
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(ov.classList.contains('open')){ if(k==='Escape'){ e.preventDefault(); closeOv(); } return; }
+    var tag=(document.activeElement&&document.activeElement.tagName)||'';
+    if(k==='m'||k==='M'){ e.preventDefault(); openOv(); return; }
+    if(k==='Escape') return;
+    var d=0;
+    if(k==='ArrowDown'||k==='ArrowRight'||k==='PageDown'||k===' ') d=1;
+    else if(k==='ArrowUp'||k==='ArrowLeft'||k==='PageUp') d=-1;
+    else if(k==='Home'){ e.preventDefault(); go(0); return; }
+    else if(k==='End'){ e.preventDefault(); go(cards.length-1); return; }
+    else return;
+    if(k===' '&&(tag==='BUTTON'||tag==='A')) return;
+    e.preventDefault(); go(curIdx()+d);
+  });
+
+  /* ── 안내 문구: 기기별 (원칙 5) ── */
+  var hint=document.querySelector('.hint');
+  if(hint && window.matchMedia('(min-width:920px)').matches){
+    hint.textContent='↓ 스크롤 · M 키로 목차';
+  } else if(hint){
+    hint.textContent='↓ 밀어서 보기 · 우측 상단 ☰ 목차';
+  }
+
+  /* ── 시작 위치 복원 (원칙 3) ── */
+  ticks();
+  var h=(location.hash||'').replace('#','');
+  if(h && /^\d+$/.test(h)){ go(parseInt(h,10)-1, true); }
+  sync();
+  function settle(){
+    ticks();
+    var hh=(location.hash||'').replace('#','');
+    if(hh && /^\d+$/.test(hh)){
+      var t=cards[Math.min(cards.length,Math.max(1,parseInt(hh,10)))-1];
+      if(t && Math.abs(deck.scrollTop-t.offsetTop)>4) deck.scrollTo({top:t.offsetTop,behavior:'auto'});
+    }
+    sync();
+  }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(settle); }
+  setTimeout(settle,250);
+  window.addEventListener('load',settle);
+})();
+</script>
+</body>
+</html>
