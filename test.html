@@ -1,1 +1,183 @@
-<!DOCTYPE html><html style="height: 100%;"><body style="height: 100%; margin: 0;"><iframe src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_multimodelaiagent_a8EHba/webchat?__version__=2&enableFileAttachment=false&cliAgent=true" frameborder="0" style="width: 100%; height: 100%; border: 0;"></iframe></body></html>
+<!doctype html>
+<html lang="ko" style="height:100%;">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Copilot Studio — Webchat</title>
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#061226;
+      --card-bg:#ffffff;
+      --muted:#6b7280;
+      --accent:#2563eb;
+      --radius:12px;
+      --shadow: 0 8px 24px rgba(2,6,23,0.35);
+      --max-width:1100px;
+    }
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      display:flex;align-items:center;justify-content:center;padding:24px;
+      box-sizing:border-box;color:#0b1220;
+    }
+
+    .card{
+      width:100%; max-width:var(--max-width); height:86vh;
+      background:var(--card-bg); border-radius:var(--radius); overflow:hidden;
+      box-shadow:var(--shadow); display:flex; flex-direction:column;
+      border:1px solid rgba(11,17,32,0.06);
+    }
+
+    header.app-header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:12px 16px; background:linear-gradient(90deg,#0b1220,#0f1b3a);
+      color:white;
+    }
+    .title{
+      font-weight:600; font-size:1rem; display:flex; gap:10px; align-items:center;
+    }
+    .title .logo{
+      width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;
+    }
+
+    .controls{display:flex; gap:8px; align-items:center;}
+    .controls button{
+      background:rgba(255,255,255,0.08); color:#fff; border:0; padding:8px 10px; border-radius:8px; cursor:pointer;
+      font-size:0.95rem;
+    }
+    .controls button:hover{background:rgba(255,255,255,0.12);}
+
+    .iframe-wrap{position:relative; flex:1; background:#000;}
+    iframe{
+      width:100%; height:100%; border:0; display:block;
+      background:transparent;
+    }
+
+    /* loader */
+    .loader{
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(180deg, rgba(2,6,23,0.3), rgba(2,6,23,0.2));
+      z-index:5; transition:opacity .24s ease;
+    }
+    .loader.hidden{opacity:0; pointer-events:none; visibility:hidden;}
+    .spinner{
+      width:64px;height:64px;border-radius:50%;border:6px solid rgba(255,255,255,0.12);
+      border-top-color:var(--accent); animation:spin 1s linear infinite;
+      box-shadow:0 6px 18px rgba(37,99,235,0.18);
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .footer{
+      padding:10px 14px; font-size:0.92rem; color:var(--muted); display:flex; align-items:center; justify-content:space-between; gap:12px;
+      border-top:1px solid rgba(11,17,32,0.04);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
+    .fallback a{ color:var(--accent); text-decoration:none; font-weight:600;}
+    .notice{font-size:0.9rem;color:var(--muted);}
+
+    @media (max-width:720px){
+      .card{height:92vh;}
+      .title{font-size:0.95rem;}
+      .controls button{padding:7px 9px; font-size:0.88rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="region" aria-label="Copilot Studio Webchat">
+    <header class="app-header">
+      <div class="title">
+        <div class="logo" aria-hidden="true">CS</div>
+        <div>
+          <div>Copilot Studio</div>
+          <div style="font-size:0.82rem;color:rgba(255,255,255,0.85);margin-top:2px;">Webchat embedding</div>
+        </div>
+      </div>
+      <div class="controls" role="toolbar" aria-label="controls">
+        <button id="openNew" title="새 탭에서 열기">새 탭에서 열기</button>
+        <button id="toggleFs" title="전체화면 전환">전체화면</button>
+      </div>
+    </header>
+
+    <div class="iframe-wrap" id="iframeWrap">
+      <div class="loader" id="loader" role="status" aria-live="polite">
+        <div style="text-align:center;color:white">
+          <div class="spinner" aria-hidden="true"></div>
+          <div style="margin-top:10px;font-size:0.95rem;color:rgba(255,255,255,0.9)">로딩 중… 잠시만 기다려주세요</div>
+        </div>
+      </div>
+
+      <iframe
+        id="botIframe"
+        src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_multimodelaiagent_a8EHba/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
+        title="Copilot Studio Webchat"
+        loading="lazy"
+        allow="microphone; camera; clipboard-write; geolocation; fullscreen"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+
+    <div class="footer">
+      <div class="fallback">
+        문제가 있으면 <a id="openLink" href="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_multimodelaiagent_a8EHba/webchat?__version__=2&enableFileAttachment=false&cliAgent=true" target="_blank" rel="noopener">새 탭에서 열기</a>
+      </div>
+      <div class="notice">파일 첨부는 비활성화 되어 있습니다.</div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const iframe = document.getElementById('botIframe');
+      const loader = document.getElementById('loader');
+      const openNew = document.getElementById('openNew');
+      const openLink = document.getElementById('openLink');
+      const toggleFs = document.getElementById('toggleFs');
+      const card = document.querySelector('.card');
+
+      // Hide loader when iframe finishes loading
+      iframe.addEventListener('load', () => {
+        loader.classList.add('hidden');
+        loader.setAttribute('aria-hidden','true');
+      });
+
+      // Fallback: if iframe doesn't load within 12s, hide spinner and show hint
+      const fallbackTimer = setTimeout(() => {
+        if(!iframe.complete){ // iframe.complete is not standard — just hide loader anyway after timeout
+          loader.classList.add('hidden');
+          loader.setAttribute('aria-hidden','true');
+        }
+      }, 12000);
+
+      // Open in new tab
+      openNew.addEventListener('click', () => {
+        window.open(iframe.src, '_blank', 'noopener');
+      });
+      openLink.addEventListener('click', (e) => {
+        // default link already opens - nothing required
+      });
+
+      // Fullscreen toggle
+      toggleFs.addEventListener('click', async () => {
+        if (!document.fullscreenElement) {
+          try {
+            await card.requestFullscreen();
+          } catch (err) {
+            console.warn('Fullscreen 요청 실패', err);
+            alert('전체화면 모드를 사용할 수 없습니다.');
+          }
+        } else {
+          document.exitFullscreen();
+        }
+      });
+
+      // Accessibility: focus management
+      openNew.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') openNew.click();
+      });
+
+      // Keep loader hidden after load or timeout
+      iframe.addEventListener('load', () => clearTimeout(fallbackTimer));
+    })();
+  </script>
+</body>
+</html>
